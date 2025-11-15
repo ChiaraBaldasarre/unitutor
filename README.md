@@ -53,16 +53,6 @@ Unitutor is a system designed to simplify the management of tutoring sessions fo
 ---
 
 ## 6. Global variables
-> *(These may change depending on the final implementation.)*
-
-- List of users and their assigned roles.
-- Available subjects offered in tutoring sessions.
-- Collection of tutoring sessions created by tutors.
-- Records of student registrations.
-- General validation parameters, including:
-  - DNI rules  
-  - Allowed schedule structure  
-  - Minimum number of available spots  
 
 ---
 
