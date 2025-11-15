@@ -21,11 +21,14 @@ Unitutor is a system designed to simplify the management of tutoring sessions fo
 ---
 
 ## 3. Technical details
+Along the project the following tools are beign use:
+
 - IntelliJ Idea Ultimate
 - Git
 - Git Lab
-- Java
-- MySQL
+
+Programming Language: Java V17
+Data Base: MySQL
 
 ---
 
@@ -49,10 +52,6 @@ Unitutor is a system designed to simplify the management of tutoring sessions fo
    - Viewing the tutoring history
 5. Update documentation as progress is made.
 6. Commit and push changes following the team’s conventions.
-
----
-
-## 6. Global variables
 
 ---
 
