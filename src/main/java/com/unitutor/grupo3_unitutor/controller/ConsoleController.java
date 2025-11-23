@@ -1,6 +1,8 @@
 package com.unitutor.grupo3_unitutor.controller;
 
 import com.unitutor.grupo3_unitutor.model.Usuario;
+import com.unitutor.grupo3_unitutor.service.ProfessorMenuView;
+import com.unitutor.grupo3_unitutor.service.StudentMenuView;
 import com.unitutor.grupo3_unitutor.service.UsuarioService;
 import org.springframework.stereotype.Component;
 
@@ -13,10 +15,14 @@ public class ConsoleController {
     private final UsuarioService usuarioService;
     private final Scanner scanner;
     private Usuario usuarioActual;
+    private final StudentMenuView studentMenuView;
+    private final ProfessorMenuView professorMenuView;
 
     public ConsoleController(UsuarioService usuarioService) {
         this.usuarioService = usuarioService;
         this.scanner = new Scanner(System.in);
+        this.studentMenuView = new StudentMenuView();
+        this.professorMenuView = new ProfessorMenuView();
     }
 
     public void run() {
@@ -32,6 +38,8 @@ public class ConsoleController {
     private void mostrarMenuLogin() {
         boolean autenticado = false;
         System.out.println("\nMódulo de Autenticación");
+
+        System.out.println("(Escriba 'exit' para salir)\n");
 
         while (!autenticado) {
             System.out.print("Ingrese su DNI (ej. 11223344): ");
@@ -58,23 +66,63 @@ public class ConsoleController {
         }
     }
 
-    // Función ejemplo para mostrar opciones del menú.
     private void mostrarMenuPrincipal(Usuario usuario) {
         String rolName = usuario.getRole().getName().toUpperCase();
-        System.out.println("\nDASHBOARD PRINCIPAL [" + rolName + "]");
+        boolean salir = false;
+        while (!salir) {
 
-        if ("STUDENT".equals(rolName)) {
-            System.out.println("1. Buscar y Reservar Tutorías");
-            System.out.println("2. Mi Historial de Tutorías");
-            System.out.println("3. Cancelar Inscripción");
+            if ("STUDENT".equals(rolName)) {
+                studentMenuView.showMenu();
+            } else if ("PROFESSOR".equals(rolName)) {
+                professorMenuView.showMenu();
+            } else {
+                System.err.println("Rol no reconocido. Cerrando sesión...");
+                usuarioActual = null;
+                return;
+            }
 
-        } else if ("PROFESSOR".equals(rolName)) {
-            System.out.println("1. Crear Nueva Tutoría");
-            System.out.println("2. Gestionar Tutorías Activas");
-            System.out.println("3. Cargar Calificaciones");
+            System.out.print("Seleccione una opción: ");
+            String opcion = scanner.nextLine().trim();
+
+            switch (opcion) {
+                case "1":
+                    if ("STUDENT".equals(rolName)) {
+                        System.out.println(">> [STUDENT] Buscar y Reservar Tutorías (pendiente de implementación).");
+                    } else {
+                        System.out.println(">> [PROFESSOR] Crear Nueva Tutoría (pendiente de implementación).");
+                    }
+                    break;
+
+                case "2":
+                    if ("STUDENT".equals(rolName)) {
+                        System.out.println(">> [STUDENT] Mi Historial de Tutorías (pendiente de implementación).");
+                    } else {
+                        System.out.println(">> [PROFESSOR] Gestionar Tutorías Activas (pendiente de implementación).");
+                    }
+                    break;
+
+                case "3":
+                    if ("STUDENT".equals(rolName)) {
+                        System.out.println(">> [STUDENT] Cancelar Inscripción (pendiente de implementación).");
+                    } else {
+                        System.out.println(">> [PROFESSOR] Cargar Calificaciones (pendiente de implementación).");
+                    }
+                    break;
+
+                case "0":
+                    System.out.println("Cerrando sesión...");
+                    usuarioActual = null;
+                    salir = true;
+                    break;
+
+                default:
+                    System.out.println("Opción no válida. Intente nuevamente.");
+            }
+
+            if (!salir) {
+                System.out.println("\nPresione ENTER para volver al menú...");
+                scanner.nextLine();
+            }
         }
-
-        System.out.println("0. Salir (Cerrar Sesión)");
-        // Implementar bucle while para manejar las selecciones del menú.
     }
 }
