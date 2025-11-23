@@ -1,9 +1,9 @@
 package com.unitutor.grupo3_unitutor.controller;
 
-import com.unitutor.grupo3_unitutor.model.Usuario;
+import com.unitutor.grupo3_unitutor.model.User;
 import com.unitutor.grupo3_unitutor.service.ProfessorMenuView;
 import com.unitutor.grupo3_unitutor.service.StudentMenuView;
-import com.unitutor.grupo3_unitutor.service.UsuarioService;
+import com.unitutor.grupo3_unitutor.service.UserService;
 import org.springframework.stereotype.Component;
 
 import java.util.Optional;
@@ -12,36 +12,36 @@ import java.util.Scanner;
 @Component
 public class ConsoleController {
 
-    private final UsuarioService usuarioService;
+    private final UserService userService;
     private final Scanner scanner;
-    private Usuario actualUser;
+    private User currentUser;
     private final StudentMenuView studentMenuView;
     private final ProfessorMenuView professorMenuView;
 
-    public ConsoleController(UsuarioService usuarioService) {
-        this.usuarioService = usuarioService;
+    public ConsoleController(UserService userService) {
+        this.userService = userService;
         this.scanner = new Scanner(System.in);
         this.studentMenuView = new StudentMenuView();
         this.professorMenuView = new ProfessorMenuView();
     }
 
     public void run() {
-        mostrarMenuLogin();
+        showLoginMenu();
 
-        if (actualUser != null) {
-            mostrarMenuPrincipal(actualUser);
+        if (currentUser != null) {
+            showPrincipalMenu(currentUser);
         }
 
         scanner.close();
     }
 
-    private void mostrarMenuLogin() {
-        boolean autenticado = false;
+    private void showLoginMenu() {
+        boolean authenticated = false;
         System.out.println("\nAuthentication Module");
 
         System.out.println("(Type 'exit' to leave)\n");
 
-        while (!autenticado) {
+        while (!authenticated) {
             System.out.print("Insert your DNI (ej. 11223344): ");
             String dni = scanner.nextLine().trim();
 
@@ -50,43 +50,43 @@ public class ConsoleController {
                 return;
             }
 
-            Optional<Usuario> usuarioOpt = usuarioService.autenticarPorDni(dni);
+            Optional<User> optUser = userService.authenticateByDni(dni);
 
-            if (dni.matches("^\\d{8}$") && usuarioOpt.isEmpty()) {
+            if (dni.matches("^\\d{8}$") && optUser.isEmpty()) {
                 // CA-2.1: DNI no registrado
                 System.err.println("ERROR: DNI not found. Please verify your credentials.");
             } else if (!dni.matches("^\\d{8}$")) {
                 // CA-2.2: DNI Inválido/Formato
                 System.err.println("ERROR: The DNI format is invalid. It must be numeric and contain 8 digits.");
             } else {
-                this.actualUser = usuarioOpt.get();
-                System.out.println("Successful login. Welcome " + actualUser.getFirstName() + "!");
-                autenticado = true;
+                this.currentUser = optUser.get();
+                System.out.println("Successful login. Welcome " + currentUser.getFirstName() + "!");
+                authenticated = true;
             }
         }
     }
 
-    private void mostrarMenuPrincipal(Usuario usuario) {
-        String rolName = usuario.getRole().getName().toUpperCase();
+    private void showPrincipalMenu(User user) {
+        String roleName = user.getRole().getName().toUpperCase();
         boolean exit = false;
         while (!exit) {
 
-            if ("STUDENT".equals(rolName)) {
+            if ("STUDENT".equals(roleName)) {
                 studentMenuView.showMenu();
-            } else if ("PROFESSOR".equals(rolName)) {
+            } else if ("PROFESSOR".equals(roleName)) {
                 professorMenuView.showMenu();
             } else {
                 System.err.println("Unrecognized role. Logging out...");
-                actualUser = null;
+                currentUser = null;
                 return;
             }
 
             System.out.print("Select an option: ");
-            String opcion = scanner.nextLine().trim();
+            String option = scanner.nextLine().trim();
 
-            switch (opcion) {
+            switch (option) {
                 case "1":
-                    if ("STUDENT".equals(rolName)) {
+                    if ("STUDENT".equals(roleName)) {
                         System.out.println("[STUDENT] Search and Book Tutoring Sessions (pending implementation).");
                     } else {
                         System.out.println("[PROFESSOR] Create New Tutoring Session (pending implementation).");
@@ -94,7 +94,7 @@ public class ConsoleController {
                     break;
 
                 case "2":
-                    if ("STUDENT".equals(rolName)) {
+                    if ("STUDENT".equals(roleName)) {
                         System.out.println("[STUDENT] Cancel Enrollment (pending implementation).");
                     } else {
                         System.out.println("[PROFESSOR] Upload Grades (pending implementation).");
@@ -102,7 +102,7 @@ public class ConsoleController {
                     break;
 
                 case "3":
-                    if ("STUDENT".equals(rolName)) {
+                    if ("STUDENT".equals(roleName)) {
                         System.out.println("[STUDENT] My Tutoring History (pending implementation).");
                     } else {
                         System.out.println("[PROFESSOR] Manage Active Tutoring Sessions (pending implementation).");
@@ -111,7 +111,7 @@ public class ConsoleController {
 
                 case "0":
                     System.out.println("Logging out...");
-                    actualUser = null;
+                    currentUser = null;
                     exit = true;
                     break;
 

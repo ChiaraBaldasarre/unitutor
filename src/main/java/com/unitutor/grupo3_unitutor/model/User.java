@@ -3,7 +3,7 @@ import jakarta.persistence.*;
 
 @Entity
 @Table(name = "usuarios") //
-public class Usuario {
+public class User {
 
     @Id
     @Column(name = "dni", nullable = false, length = 10)
