@@ -14,7 +14,7 @@ public class ConsoleController {
 
     private final UsuarioService usuarioService;
     private final Scanner scanner;
-    private Usuario usuarioActual;
+    private Usuario actualUser;
     private final StudentMenuView studentMenuView;
     private final ProfessorMenuView professorMenuView;
 
@@ -28,8 +28,8 @@ public class ConsoleController {
     public void run() {
         mostrarMenuLogin();
 
-        if (usuarioActual != null) {
-            mostrarMenuPrincipal(usuarioActual);
+        if (actualUser != null) {
+            mostrarMenuPrincipal(actualUser);
         }
 
         scanner.close();
@@ -59,8 +59,8 @@ public class ConsoleController {
                 // CA-2.2: DNI Inválido/Formato
                 System.err.println("ERROR: The DNI format is invalid. It must be numeric and contain 8 digits.");
             } else {
-                this.usuarioActual = usuarioOpt.get();
-                System.out.println("Successful login. Welcome " + usuarioActual.getFirstName() + "!");
+                this.actualUser = usuarioOpt.get();
+                System.out.println("Successful login. Welcome " + actualUser.getFirstName() + "!");
                 autenticado = true;
             }
         }
@@ -68,8 +68,8 @@ public class ConsoleController {
 
     private void mostrarMenuPrincipal(Usuario usuario) {
         String rolName = usuario.getRole().getName().toUpperCase();
-        boolean salir = false;
-        while (!salir) {
+        boolean exit = false;
+        while (!exit) {
 
             if ("STUDENT".equals(rolName)) {
                 studentMenuView.showMenu();
@@ -77,7 +77,7 @@ public class ConsoleController {
                 professorMenuView.showMenu();
             } else {
                 System.err.println("Unrecognized role. Logging out...");
-                usuarioActual = null;
+                actualUser = null;
                 return;
             }
 
@@ -111,15 +111,15 @@ public class ConsoleController {
 
                 case "0":
                     System.out.println("Logging out...");
-                    usuarioActual = null;
-                    salir = true;
+                    actualUser = null;
+                    exit = true;
                     break;
 
                 default:
                     System.out.println("Invalid option. Please try again.");
             }
 
-            if (!salir) {
+            if (!exit) {
                 System.out.println("\nPress ENTER to return to the menu...");
                 scanner.nextLine();
             }
