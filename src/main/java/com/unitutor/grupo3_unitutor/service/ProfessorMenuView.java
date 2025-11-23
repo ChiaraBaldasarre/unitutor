@@ -7,10 +7,10 @@ public class ProfessorMenuView implements RoleMenuView {
 
     @Override
     public void showMenu() {
-        System.out.println("\nDASHBOARD PRINCIPAL [PROFESSOR]");
-        System.out.println("1. Crear Nueva Tutoría");
-        System.out.println("2. Gestionar Tutorías Activas");
-        System.out.println("3. Cargar Calificaciones");
-        System.out.println("0. Salir (Cerrar Sesión)");
+        System.out.println("\nMAIN DASHBOARD [PROFESSOR]");
+        System.out.println("1. Create New Tutoring Session");
+        System.out.println("2. Manage Active Tutoring Sessions");
+        System.out.println("3. Upload Grades");
+        System.out.println("0. Exit (Log Out)");
     }
 }
