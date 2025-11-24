@@ -60,21 +60,42 @@ public class ConsoleController {
 
     // Función ejemplo para mostrar opciones del menú.
     private void mostrarMenuPrincipal(Usuario usuario) {
-        String rolName = usuario.getRole().getName().toUpperCase();
-        System.out.println("\nDASHBOARD PRINCIPAL [" + rolName + "]");
+        boolean active = true;
 
-        if ("STUDENT".equals(rolName)) {
-            System.out.println("1. Buscar y Reservar Tutorías");
-            System.out.println("2. Mi Historial de Tutorías");
-            System.out.println("3. Cancelar Inscripción");
+        while (active) {
+            String rolName = usuario.getRole().getName().toUpperCase();
+            System.out.println("\nDASHBOARD PRINCIPAL [" + rolName + "]");
 
-        } else if ("PROFESSOR".equals(rolName)) {
-            System.out.println("1. Crear Nueva Tutoría");
-            System.out.println("2. Gestionar Tutorías Activas");
-            System.out.println("3. Cargar Calificaciones");
+            if ("STUDENT".equals(rolName)) {
+                System.out.println("1. Buscar y Reservar Tutorías");
+                System.out.println("2. Mi Historial de Tutorías");
+                System.out.println("3. Cancelar Inscripción");
+
+            } else if ("PROFESSOR".equals(rolName)) {
+                System.out.println("1. Crear Nueva Tutoría");
+                System.out.println("2. Gestionar Tutorías Activas");
+                System.out.println("3. Cargar Calificaciones");
+            }
+
+            System.out.println("0. Salir (Cerrar Sesión)");
+            System.out.print("Seleccione una opción: ");
+            // Implementar bucle while para manejar las selecciones del menú.
+
+            String option = scanner.nextLine().trim();
+
+            switch (option) {
+                case "0":
+                    System.out.println("Cerrando sesión...");
+                    usuarioActual = null;   // ← destruye la sesión
+                    active = false;         // ← sale del menú
+                    break;
+
+                default:
+                    System.err.println("Opción inválida.");
+            }
         }
 
-        System.out.println("0. Salir (Cerrar Sesión)");
-        // Implementar bucle while para manejar las selecciones del menú.
+
+    System.out.println("Sesión finalizada. Saliendo del sistema...");
     }
 }
