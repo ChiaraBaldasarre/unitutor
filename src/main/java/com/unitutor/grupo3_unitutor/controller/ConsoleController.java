@@ -66,47 +66,8 @@ public class ConsoleController {
         }
     }
 
-<<<<<<< HEAD
-    // Función ejemplo para mostrar opciones del menú.
-    private void showPrincipalMenu(User user) {
-        boolean active = true;
-
-        while (active) {
-            String rolName = user.getRole().getName().toUpperCase();
-            System.out.println("\nDASHBOARD PRINCIPAL [" + rolName + "]");
-
-            if ("STUDENT".equals(rolName)) {
-                System.out.println("1. Buscar y Reservar Tutorías");
-                System.out.println("2. Mi Historial de Tutorías");
-                System.out.println("3. Cancelar Inscripción");
-
-            } else if ("PROFESSOR".equals(rolName)) {
-                System.out.println("1. Crear Nueva Tutoría");
-                System.out.println("2. Gestionar Tutorías Activas");
-                System.out.println("3. Cargar Calificaciones");
-            }
-
-            System.out.println("0. Salir (Cerrar Sesión)");
-            System.out.print("Seleccione una opción: ");
-            // Implementar bucle while para manejar las selecciones del menú.
-
-            String option = scanner.nextLine().trim();
-
-            switch (option) {
-                case "0":
-                    System.out.println("Cerrando sesión...");
-                    currentUser = null;   // ← destruye la sesión
-                    active = false;         // ← sale del menú
-                    break;
-
-                default:
-                    System.err.println("Opción inválida.");
-            }
-        }
 
 
-    System.out.println("Sesión finalizada. Saliendo del sistema...");
-=======
     private void showPrincipalMenu(User user) {
         String roleName = user.getRole().getName().toUpperCase();
         boolean exit = false;
@@ -151,8 +112,8 @@ public class ConsoleController {
                     break;
 
                 case "0":
-                    System.out.println("Logging out...");
-                    currentUser = null;
+                    System.out.println("\n" + "Signing out...");
+                    currentUser = null;   // ← destruye la sesión
                     exit = true;
                     break;
 
@@ -165,6 +126,6 @@ public class ConsoleController {
                 scanner.nextLine();
             }
         }
->>>>>>> dev
+
     }
 }
