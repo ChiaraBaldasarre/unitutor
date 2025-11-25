@@ -1,7 +1,7 @@
 package service;
 import com.unitutor.grupo3_unitutor.model.Role;
-import com.unitutor.grupo3_unitutor.model.Usuario;
-import com.unitutor.grupo3_unitutor.service.UsuarioService;
+import com.unitutor.grupo3_unitutor.model.User;
+import com.unitutor.grupo3_unitutor.service.UserService;
 import com.unitutor.grupo3_unitutor.repository.UsuarioRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -15,12 +15,12 @@ import static org.mockito.Mockito.*;
 class UserServiceTest {
 
     private UsuarioRepository userRepository;
-    private UsuarioService userService;
+    private UserService userService;
 
     @BeforeEach
     void setUp() {
         userRepository = Mockito.mock(UsuarioRepository.class);
-        userService = new UsuarioService(userRepository);
+        userService = new UserService(userRepository);
     }
 
     // ---------------------------
@@ -28,7 +28,7 @@ class UserServiceTest {
     // ---------------------------
     @Test
     void authenticateStudent_successful() {
-        Usuario student = new Usuario();
+        User student = new User();
         student.setDni("12345678");
 
         Role role = new Role();
@@ -38,7 +38,7 @@ class UserServiceTest {
         when(userRepository.findByDni("12345678"))
                 .thenReturn(Optional.of(student));
 
-        Optional<Usuario> result = userService.autenticarPorDni("12345678");
+        Optional<User> result = userService.authenticateByDni("12345678");
 
         assertTrue(result.isPresent());
         assertEquals("Student", result.get().getRole().getName());
@@ -49,7 +49,7 @@ class UserServiceTest {
     // ---------------------------
     @Test
     void authenticateTeacher_successful() {
-        Usuario teacher = new Usuario();
+        User teacher = new User();
         teacher.setDni("87654321");
 
         Role role = new Role();
@@ -59,7 +59,7 @@ class UserServiceTest {
         when(userRepository.findByDni("87654321"))
                 .thenReturn(Optional.of(teacher));
 
-        Optional<Usuario> result = userService.autenticarPorDni("87654321");
+        Optional<User> result = userService.authenticateByDni("87654321");
 
         assertTrue(result.isPresent());
         assertEquals("Teacher", result.get().getRole().getName());
@@ -70,7 +70,7 @@ class UserServiceTest {
     // ---------------------------
     @Test
     void authenticate_failInvalidFormat() {
-        Optional<Usuario> result = userService.autenticarPorDni("abc123");
+        Optional<User> result = userService.authenticateByDni("abc123");
 
         assertTrue(result.isEmpty());
         verify(userRepository, never()).findByDni(any());
@@ -84,7 +84,7 @@ class UserServiceTest {
         when(userRepository.findByDni("12345678"))
                 .thenReturn(Optional.empty());
 
-        Optional<Usuario> result = userService.autenticarPorDni("12345678");
+        Optional<User> result = userService.authenticateByDni("12345678");
 
         assertTrue(result.isEmpty());
     }
