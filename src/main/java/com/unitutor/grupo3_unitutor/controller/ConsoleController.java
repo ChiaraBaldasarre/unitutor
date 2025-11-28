@@ -1,8 +1,8 @@
 package com.unitutor.grupo3_unitutor.controller;
 
 import com.unitutor.grupo3_unitutor.model.User;
-import com.unitutor.grupo3_unitutor.service.ProfessorMenuView;
-import com.unitutor.grupo3_unitutor.service.StudentMenuView;
+import com.unitutor.grupo3_unitutor.view.ProfessorMenuView;
+import com.unitutor.grupo3_unitutor.view.StudentMenuView;
 import com.unitutor.grupo3_unitutor.service.UserService;
 import org.springframework.stereotype.Component;
 
