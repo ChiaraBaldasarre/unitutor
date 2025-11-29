@@ -62,10 +62,11 @@ Data Base: MySQL
 ---
 
 ## 7. Team members
-- **Lilian Laime** – Team Lead  
-- **Lucas Martinez** – Scrum Master  
-- **Chiara Baldasarre** – Development & QA  
-- **Alessandro Adrian Ruiz** – Development & QA  
+
+- **Lucas Martinez**
+- **Chiara Baldasarre** 
+- **Lilian Laime**
+- **Alessandro Adrian Ruiz** 
 
 ---
 
