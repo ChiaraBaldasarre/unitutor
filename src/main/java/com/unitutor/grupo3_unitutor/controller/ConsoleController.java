@@ -1,8 +1,8 @@
 package com.unitutor.grupo3_unitutor.controller;
 
 import com.unitutor.grupo3_unitutor.model.User;
-import com.unitutor.grupo3_unitutor.service.ProfessorMenuView;
-import com.unitutor.grupo3_unitutor.service.StudentMenuView;
+import com.unitutor.grupo3_unitutor.view.ProfessorMenuView;
+import com.unitutor.grupo3_unitutor.view.StudentMenuView;
 import com.unitutor.grupo3_unitutor.service.UserService;
 import org.springframework.stereotype.Component;
 
@@ -66,6 +66,8 @@ public class ConsoleController {
         }
     }
 
+
+
     private void showPrincipalMenu(User user) {
         String roleName = user.getRole().getName().toUpperCase();
         boolean exit = false;
@@ -110,8 +112,8 @@ public class ConsoleController {
                     break;
 
                 case "0":
-                    System.out.println("Logging out...");
-                    currentUser = null;
+                    System.out.println("\n" + "Signing out...");
+                    currentUser = null;   // ← destruye la sesión
                     exit = true;
                     break;
 
@@ -124,5 +126,6 @@ public class ConsoleController {
                 scanner.nextLine();
             }
         }
+
     }
 }
