@@ -13,4 +13,12 @@ public class StudentMenuView implements RoleMenuView {
         System.out.println("3. Cancel Enrollment");
         System.out.println("0. Exit (Log Out)");
     }
+
+    public void showSearchFilters() {
+        System.out.println("\n--- Search Tutoring Sessions ---");
+        System.out.println("1. Search by Subject");
+        System.out.println("2. Search by Date");
+        System.out.println("3. Search by Modality");
+        System.out.println("0. Back");
+    }
 }

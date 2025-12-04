@@ -27,6 +27,9 @@ public class TutoringSession {
     @JoinColumn(name = "professor_dni", nullable = false)
     private User professor;
 
+    @Column(name = "modality", nullable = false)
+    private String modality;
+
     public Long getId() { return id; }
     public void setId(Long id) {
         this.id = id;
@@ -61,4 +64,6 @@ public class TutoringSession {
     public void setProfessor(User professor) {
         this.professor = professor;
     }
+    public String getModality() { return modality; }
+    public void setModality(String modality) { this.modality = modality; }
 }
