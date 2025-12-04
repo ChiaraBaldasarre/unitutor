@@ -7,6 +7,8 @@ import com.unitutor.grupo3_unitutor.view.ConsoleIO;
 import com.unitutor.grupo3_unitutor.view.ProfessorMenuView;
 import com.unitutor.grupo3_unitutor.view.StudentMenuView;
 import com.unitutor.grupo3_unitutor.service.UserService;
+import com.unitutor.grupo3_unitutor.utils.DniValidator;
+
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
@@ -24,7 +26,8 @@ public class ConsoleController {
     private final StudentMenuView studentMenuView;
     private final ProfessorMenuView professorMenuView;
 
-    public ConsoleController(UserService userService, StudentMenuView studentMenuView, ProfessorMenuView professorMenuView, ProfessorFormService professorFormService, ConsoleIO consoleIO) {
+    public ConsoleController(UserService userService, StudentMenuView studentMenuView,
+            ProfessorMenuView professorMenuView, ProfessorFormService professorFormService, ConsoleIO consoleIO) {
         this.userService = userService;
         this.professorFormService = professorFormService;
         this.consoleIO = consoleIO;
@@ -55,15 +58,21 @@ public class ConsoleController {
                 return;
             }
 
+            String errorMsg = DniValidator.getValidationError(dni);
+
+            if (errorMsg != null) {
+                consoleIO.writeError("ERROR: " + errorMsg);
+                continue;
+            }
+
+            // PASO 2: Intentar Autenticar (Solo si el formato es válido)
             Optional<User> optUser = userService.authenticateByDni(dni);
 
-            if (dni.matches("^\\d{8}$") && optUser.isEmpty()) {
-                // CA-2.1: DNI no registrado
+            if (optUser.isEmpty()) {
+                // CA-2.1: DNI válido en formato, pero no existe en la BD
                 consoleIO.writeError("ERROR: DNI not found. Please verify your credentials.");
-            } else if (!dni.matches("^\\d{8}$")) {
-                // CA-2.2: DNI Inválido/Formato
-                consoleIO.writeError("ERROR: The DNI format is invalid. It must be numeric and contain 8 digits.");
             } else {
+                // Login Exitoso
                 this.currentUser = optUser.get();
                 consoleIO.write("Successful login. Welcome " + currentUser.getFirstName() + "!");
                 authenticated = true;
@@ -116,7 +125,7 @@ public class ConsoleController {
 
                 case "0":
                     consoleIO.write("\n" + "Signing out...");
-                    currentUser = null;   // destroys the session
+                    currentUser = null; // destroys the session
                     exit = true;
                     break;
 
