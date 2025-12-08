@@ -38,7 +38,6 @@ public class ConsoleController {
         if (currentUser != null) {
             showPrincipalMenu(currentUser);
         }
-
         consoleIO.closeScanner();
     }
 
@@ -55,7 +54,7 @@ public class ConsoleController {
                 return;
             }
 
-            String errorMsg = DniValidator.getValidationError(dni);
+            String errorMsg = DniValidator.getValidationError(dni); // It returns null
 
             if (errorMsg != null) {
                 consoleIO.writeError("ERROR: " + errorMsg);
@@ -121,7 +120,7 @@ public class ConsoleController {
 
                 case "0":
                     consoleIO.write("\n" + "Signing out...");
-                    currentUser = null; // destroys the session
+                    currentUser = null;
                     exit = true;
                     break;
 

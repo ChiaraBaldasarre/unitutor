@@ -7,7 +7,6 @@ public class DniValidator {
     if (dni == null || dni.trim().isEmpty()) {
       return "DNI is required.";
     }
-
     if (!dni.matches("[0-9]+")) {
       return "The DNI can only contain numbers.";
     }

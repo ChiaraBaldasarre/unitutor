@@ -2,7 +2,7 @@ package service;
 import com.unitutor.grupo3_unitutor.model.Role;
 import com.unitutor.grupo3_unitutor.model.User;
 import com.unitutor.grupo3_unitutor.service.UserService;
-import com.unitutor.grupo3_unitutor.repository.UsuarioRepository;
+import com.unitutor.grupo3_unitutor.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -14,12 +14,12 @@ import static org.mockito.Mockito.*;
 
 class UserServiceTest {
 
-    private UsuarioRepository userRepository;
+    private UserRepository userRepository;
     private UserService userService;
 
     @BeforeEach
     void setUp() {
-        userRepository = Mockito.mock(UsuarioRepository.class);
+        userRepository = Mockito.mock(UserRepository.class);
         userService = new UserService(userRepository);
     }
 
