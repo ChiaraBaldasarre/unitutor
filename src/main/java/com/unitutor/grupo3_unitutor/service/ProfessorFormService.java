@@ -27,6 +27,7 @@ public class ProfessorFormService {
     public void createTutoringSession(User professor) {
         TutoringSession session = new TutoringSession();
         session.setProfessor(professor);
+
         int step = 1;
         boolean exitForm = false;
 
@@ -166,7 +167,7 @@ public class ProfessorFormService {
                             break;
 
                         } else if (input.equalsIgnoreCase("y")) {
-                            Optional<TutoringSession> result = sessionService.createSession(session);
+                            Optional<TutoringSession> result = sessionService.createSession(professor, session);
 
                             if (result.isPresent()) {
                                 consoleIO.write("\nSUCCESS: Tutoring Session for '" + session.getSubject() + "' created successfully!");
