@@ -1,7 +1,9 @@
 package com.unitutor.grupo3_unitutor.controller;
 
+import com.unitutor.grupo3_unitutor.model.SessionHistory;
 import com.unitutor.grupo3_unitutor.model.User;
 import com.unitutor.grupo3_unitutor.service.ProfessorFormService;
+import com.unitutor.grupo3_unitutor.service.StudentProgressService;
 import com.unitutor.grupo3_unitutor.service.TutoringSessionService;
 import com.unitutor.grupo3_unitutor.view.ConsoleIO;
 import com.unitutor.grupo3_unitutor.view.ProfessorMenuView;
@@ -10,29 +12,30 @@ import com.unitutor.grupo3_unitutor.service.UserService;
 import com.unitutor.grupo3_unitutor.utils.DniValidator;
 
 import org.springframework.stereotype.Component;
+import java.util.List;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
 
 @Component
 public class ConsoleController {
-    private static final Logger logger = LoggerFactory.getLogger(ConsoleController.class);
     private final UserService userService;
     private final ProfessorFormService professorFormService;
     private final ConsoleIO consoleIO;
     private User currentUser;
     private final StudentMenuView studentMenuView;
     private final ProfessorMenuView professorMenuView;
+    private final StudentProgressService studentProgressService;
 
     public ConsoleController(UserService userService, StudentMenuView studentMenuView,
-            ProfessorMenuView professorMenuView, ProfessorFormService professorFormService, ConsoleIO consoleIO) {
+            ProfessorMenuView professorMenuView, ProfessorFormService professorFormService, ConsoleIO consoleIO, StudentProgressService studentProgressService) {
         this.userService = userService;
         this.professorFormService = professorFormService;
         this.consoleIO = consoleIO;
-        this.studentMenuView = new StudentMenuView();
-        this.professorMenuView = new ProfessorMenuView();
+        this.studentMenuView = studentMenuView;
+        this.professorMenuView = professorMenuView;
+        this.studentProgressService = studentProgressService;
     }
 
     public void run() {
@@ -108,7 +111,7 @@ public class ConsoleController {
 
                 case "2":
                     if ("STUDENT".equals(roleName)) {
-                        consoleIO.write("[STUDENT] My Tutoring History (pending implementation).");
+                        handleStudentHistory(user);
                     } else {
                         consoleIO.write("[PROFESSOR] Manage Active Tutoring Sessions (pending implementation).");
                     }
@@ -207,5 +210,11 @@ public class ConsoleController {
 
             if (!exit) consoleIO.readLine("\nPress ENTER to continue...");
         }
+    }
+    private void handleStudentHistory(User student) {
+        consoleIO.write("\nRetrieving Academic History...");
+
+        List<SessionHistory> history = studentProgressService.getTutoringHistory(student);
+        studentMenuView.displayHistory(history);
     }
 }
