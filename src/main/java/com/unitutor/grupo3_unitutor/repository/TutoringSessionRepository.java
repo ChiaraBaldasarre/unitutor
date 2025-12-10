@@ -7,15 +7,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public interface TutoringSessionRepository extends JpaRepository<TutoringSession, Long> {
-    static List<TutoringSession> findBySubjectIgnoreCase(String subject) {
-        return null;
-    }
-
-    static List<TutoringSession> findByStartTimeBetween(LocalDateTime start, LocalDateTime end) {
-        return null;
-    }
-
-    static List<TutoringSession> findByModalityIgnoreCase(String modality) {
-        return null;
-    }
+    List<TutoringSession> findBySubjectIgnoreCase(String subject);
+    List<TutoringSession> findByStartTimeBetween(LocalDateTime start, LocalDateTime end);
+    List<TutoringSession> findByModalityIgnoreCase(String modality);
 }

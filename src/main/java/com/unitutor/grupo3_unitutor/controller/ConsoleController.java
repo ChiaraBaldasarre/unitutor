@@ -31,10 +31,11 @@ public class ConsoleController {
     private final StudentMenuView studentMenuView;
     private final ProfessorMenuView professorMenuView;
     private final StudentProgressService studentProgressService;
+    private final TutoringSessionService tutoringSessionService;
 
     public ConsoleController(UserService userService, StudentMenuView studentMenuView,
             ProfessorMenuView professorMenuView, ProfessorFormService professorFormService, EnrollmentCancellationService enrollmentCancellationService, ConsoleIO consoleIO,
-            StudentProgressService studentProgressService) {
+            StudentProgressService studentProgressService, TutoringSessionService tutoringSessionService) {
         this.userService = userService;
         this.professorFormService = professorFormService;
         this.enrollmentCancellationService = enrollmentCancellationService;
@@ -42,6 +43,7 @@ public class ConsoleController {
         this.studentMenuView = studentMenuView;
         this.professorMenuView = professorMenuView;
         this.studentProgressService = studentProgressService;
+        this.tutoringSessionService = tutoringSessionService;
     }
 
     public void run() {
@@ -170,7 +172,7 @@ public class ConsoleController {
 
                 case "1":
                     String subject = consoleIO.readLine("Enter subject to search: ").trim();
-                    var bySubject = TutoringSessionService.searchSessions(subject, null, null);
+                    var bySubject = tutoringSessionService.searchSessions(subject, null, null);
 
                     if (bySubject.isEmpty()) {
                         consoleIO.write("No tutoring sessions found for that subject.");
@@ -185,7 +187,7 @@ public class ConsoleController {
                     String dateInput = consoleIO.readLine("Enter date (YYYY-MM-DD): ").trim();
                     try {
                         LocalDateTime date = LocalDateTime.parse(dateInput + "T00:00:00");
-                        var byDate = TutoringSessionService.searchSessions(null, date, null);
+                        var byDate = tutoringSessionService.searchSessions(null, date, null);
 
                         if (byDate.isEmpty()) {
                             consoleIO.write("No tutoring sessions found.");
@@ -208,7 +210,7 @@ public class ConsoleController {
                         break;
                     }
 
-                    var byMod = TutoringSessionService.searchSessions(null, null, mod);
+                    var byMod = tutoringSessionService.searchSessions(null, null, mod);
 
                     if (byMod.isEmpty()) {
                         consoleIO.write("No tutoring sessions found.");

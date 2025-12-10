@@ -46,20 +46,20 @@ public class TutoringSessionService {
         }
     }
 
-    public static List<TutoringSession> searchSessions(String subject, LocalDateTime date, String modality) {
+    public List<TutoringSession> searchSessions(String subject, LocalDateTime date, String modality) {
 
         if (subject != null && !subject.isBlank()) {
-            return TutoringSessionRepository.findBySubjectIgnoreCase(subject);
+            return sessionRepository.findBySubjectIgnoreCase(subject);
         }
 
         if (date != null) {
             LocalDateTime start = date.withHour(0).withMinute(0);
             LocalDateTime end = date.withHour(23).withMinute(59);
-            return TutoringSessionRepository.findByStartTimeBetween(start, end);
+            return sessionRepository.findByStartTimeBetween(start, end);
         }
 
         if (modality != null && !modality.isBlank()) {
-            return TutoringSessionRepository.findByModalityIgnoreCase(modality);
+            return sessionRepository.findByModalityIgnoreCase(modality);
         }
 
         return List.of();
