@@ -8,10 +8,10 @@ public class DniValidator {
       return "DNI is required.";
     }
     if (!dni.matches("[0-9]+")) {
-      return "The DNI can only contain numbers.";
+      return "DNI must be numeric and have exactly 8 digits.";
     }
-    if (dni.length() < 7 || dni.length() > 8) {
-      return "The DNI must have between 7 and 8 digits.";
+    if (dni.length() != 8) {
+      return "DNI must contain exactly 8 digits.";
     }
     return null;
   }
