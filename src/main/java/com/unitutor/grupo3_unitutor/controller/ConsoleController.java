@@ -3,6 +3,7 @@ package com.unitutor.grupo3_unitutor.controller;
 import com.unitutor.grupo3_unitutor.model.SessionHistory;
 import com.unitutor.grupo3_unitutor.model.User;
 import com.unitutor.grupo3_unitutor.service.ProfessorFormService;
+import com.unitutor.grupo3_unitutor.service.EnrollmentCancellationService;
 import com.unitutor.grupo3_unitutor.service.StudentProgressService;
 import com.unitutor.grupo3_unitutor.service.TutoringSessionService;
 import com.unitutor.grupo3_unitutor.view.ConsoleIO;
@@ -24,6 +25,7 @@ public class ConsoleController {
     private static final Logger logger = LoggerFactory.getLogger(ConsoleController.class);
     private final UserService userService;
     private final ProfessorFormService professorFormService;
+    private final EnrollmentCancellationService enrollmentCancellationService;
     private final ConsoleIO consoleIO;
     private User currentUser;
     private final StudentMenuView studentMenuView;
@@ -31,10 +33,11 @@ public class ConsoleController {
     private final StudentProgressService studentProgressService;
 
     public ConsoleController(UserService userService, StudentMenuView studentMenuView,
-            ProfessorMenuView professorMenuView, ProfessorFormService professorFormService, ConsoleIO consoleIO,
+            ProfessorMenuView professorMenuView, ProfessorFormService professorFormService, EnrollmentCancellationService enrollmentCancellationService, ConsoleIO consoleIO,
             StudentProgressService studentProgressService) {
         this.userService = userService;
         this.professorFormService = professorFormService;
+        this.enrollmentCancellationService = enrollmentCancellationService;
         this.consoleIO = consoleIO;
         this.studentMenuView = studentMenuView;
         this.professorMenuView = professorMenuView;
@@ -126,7 +129,7 @@ public class ConsoleController {
 
                     case "3":
                         if ("STUDENT".equals(roleName)) {
-                            consoleIO.write("[STUDENT] Cancel Enrollment (pending implementation).");
+                            handleCancelEnrollment(user);
                         } else {
                             consoleIO.write("[PROFESSOR] Upload Grades (pending implementation).");
                         }
@@ -234,5 +237,35 @@ public class ConsoleController {
 
         List<SessionHistory> history = studentProgressService.getTutoringHistory(student);
         studentMenuView.displayHistory(history);
+    }
+
+    private void handleCancelEnrollment(User student) {
+        boolean exit = false;
+
+        while (!exit) {
+            String input = consoleIO
+                    .readLine("Enter Tutoring Session ID to cancel (0 to go back): ").trim();
+
+            if ("0".equals(input)) {
+                exit = true;
+                break;
+            }
+
+            try {
+                Long sessionId = Long.parseLong(input);
+                EnrollmentCancellationService.CancellationResult result = enrollmentCancellationService
+                        .cancelEnrollment(student, sessionId);
+
+                if (result.isSuccess()) {
+                    consoleIO.write(result.getMessage());
+                    exit = true;
+                } else {
+                    consoleIO.writeError(result.getMessage());
+                }
+
+            } catch (NumberFormatException e) {
+                consoleIO.writeError("Error: Session ID must be a number.");
+            }
+        }
     }
 }

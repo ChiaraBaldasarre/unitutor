@@ -22,6 +22,12 @@ public class Enrollment {
     @Column(name = "status", nullable = false)
     private String status;
 
+    @Column(name = "cancellation_date")
+    private LocalDateTime cancellationDate;
+
+    @Column(name = "cancelled_by")
+    private String cancelledBy;
+
 
     @Column(name = "enrollment_date", nullable = false)
     private LocalDateTime enrollmentDate;
@@ -56,6 +62,22 @@ public class Enrollment {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    public LocalDateTime getCancellationDate() {
+        return cancellationDate;
+    }
+
+    public void setCancellationDate(LocalDateTime cancellationDate) {
+        this.cancellationDate = cancellationDate;
+    }
+
+    public String getCancelledBy() {
+        return cancelledBy;
+    }
+
+    public void setCancelledBy(String cancelledBy) {
+        this.cancelledBy = cancelledBy;
     }
 
     public LocalDateTime getEnrollmentDate() {

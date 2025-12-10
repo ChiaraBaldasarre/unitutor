@@ -1,7 +1,7 @@
-package service;
+package com.unitutor.grupo3_unitutor.service;
+
 import com.unitutor.grupo3_unitutor.model.Role;
 import com.unitutor.grupo3_unitutor.model.User;
-import com.unitutor.grupo3_unitutor.service.UserService;
 import com.unitutor.grupo3_unitutor.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
