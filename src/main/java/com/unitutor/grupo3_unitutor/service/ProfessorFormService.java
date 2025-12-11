@@ -158,6 +158,28 @@ public class ProfessorFormService {
                         break;
 
                     case 5:
+                        input = consoleIO.readLine("\nSTEP 5/5: Enter Modality (ONLINE or PRESENCIAL | Back/Exit): ").toUpperCase().trim();
+
+                        if (input.equalsIgnoreCase("exit")) {
+                            exitForm = true;
+                            break;
+
+                        } else if (input.equalsIgnoreCase("back")) {
+                            step--;
+                            valid = true;
+                            break;
+                        }
+
+                        if ("ONLINE".equals(input) || "PRESENCIAL".equals(input)) {
+                            session.setModality(input);
+                            step++;
+                            valid = true;
+                        } else {
+                            consoleIO.writeError("ERROR: Modality must be ONLINE or PRESENCIAL.");
+                        }
+                        break;
+
+                    case 6:
 
                         consoleIO.write("\n--- Session Summary ---");
                         consoleIO.write("Subject: " + session.getSubject());
@@ -165,6 +187,8 @@ public class ProfessorFormService {
                                 + session.getStartTime().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")));
                         consoleIO.write("Duration: " + session.getDurationMinutes() + " minutes");
                         consoleIO.write("Max Capacity: " + session.getMaxCapacity());
+                        consoleIO.write("Modality: " + session.getModality());
+
                         input = consoleIO.readLine("Confirm creation? (Y/N | Back/Exit): ").trim();
 
                         if (input.equalsIgnoreCase("exit") || input.equalsIgnoreCase("n")) {
