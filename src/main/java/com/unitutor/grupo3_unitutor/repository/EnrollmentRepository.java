@@ -12,6 +12,6 @@ import java.util.Optional;
 public interface EnrollmentRepository extends JpaRepository<Enrollment, Long> {
     @Query("SELECT e FROM Enrollment e WHERE e.student = :student ORDER BY e.session.startTime DESC")
     List<Enrollment> findHistory(@Param("student") User student);
-
     Optional<Enrollment> findByStudentAndSession_Id(User student, Long sessionId);
+    List<Enrollment> findBySession_Id(Long sessionId);
 }
