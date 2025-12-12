@@ -30,6 +30,9 @@ public class TutoringSession {
     @Column(name = "modality", nullable = false)
     private String modality;
 
+    @Column(name = "status", nullable = false)
+    private String status = "ACTIVE";
+
     public Long getId() { return id; }
     public void setId(Long id) {
         this.id = id;
@@ -66,4 +69,11 @@ public class TutoringSession {
     }
     public String getModality() { return modality; }
     public void setModality(String modality) { this.modality = modality; }
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
 }

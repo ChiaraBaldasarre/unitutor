@@ -1,6 +1,7 @@
 package com.unitutor.grupo3_unitutor.controller;
 
 import com.unitutor.grupo3_unitutor.model.SessionHistory;
+import com.unitutor.grupo3_unitutor.model.TutoringSession;
 import com.unitutor.grupo3_unitutor.model.User;
 import com.unitutor.grupo3_unitutor.service.ProfessorFormService;
 import com.unitutor.grupo3_unitutor.service.EnrollmentCancellationService;
@@ -93,53 +94,28 @@ public class ConsoleController {
         }
     }
 
-    private void showPrincipalMenu(User user) {
-        String roleName = user.getRole().getName().toUpperCase();
+    private void handleStudentMenu(User student) {
         boolean exit = false;
+
         while (!exit) {
+            studentMenuView.showMenu();
+            String option = consoleIO.readLine("Select an option [0-3] (0 to log out): ").trim();
+
             try {
-
-                if ("STUDENT".equals(roleName)) {
-                    studentMenuView.showMenu();
-                } else if ("PROFESSOR".equals(roleName)) {
-                    professorMenuView.showMenu();
-                } else {
-                    consoleIO.writeError("Unrecognized role. Logging out...");
-                    currentUser = null;
-                    return;
-                }
-
-                String option = consoleIO.readLine("Select an option [0-3] (0 to log out): ").trim();
-
                 switch (option) {
                     case "1":
-                        if ("STUDENT".equals(roleName)) {
-                            consoleIO.write("[STUDENT] Search and Book Tutoring Sessions (pending implementation).");
-                            handleStudentSearch(user);
-                        } else if ("PROFESSOR".equals(roleName)) {
-                            professorFormService.createTutoringSession(user);
-                        }
+                        handleStudentSearch(student);
                         break;
 
                     case "2":
-                        if ("STUDENT".equals(roleName)) {
-                            handleStudentHistory(user);
-                        } else {
-                            consoleIO.write("[PROFESSOR] Manage Active Tutoring Sessions (pending implementation).");
-                        }
+                        handleStudentHistory(student);
                         break;
 
                     case "3":
-                        if ("STUDENT".equals(roleName)) {
-                            handleCancelEnrollment(user);
-                        } else {
-                            consoleIO.write("[PROFESSOR] Upload Grades (pending implementation).");
-                        }
+                        handleCancelEnrollment(student);
                         break;
 
                     case "0":
-                        consoleIO.write("\nSigning out...");
-                        currentUser = null;
                         exit = true;
                         break;
 
@@ -150,13 +126,62 @@ public class ConsoleController {
                 if (!exit) {
                     consoleIO.readLine("\nPress ENTER to return to the menu...");
                 }
+
             } catch (Exception e) {
-                logger.error("Unexpected error in principal menu", e);
+                logger.error("Unexpected error in student menu", e);
                 consoleIO.writeError("An unexpected error occurred. Contact support.");
-                currentUser = null;
-                return;
+                exit = true;
             }
         }
+    }
+
+    private void handleProfessorMenu(User professor) {
+        boolean exit = false;
+
+        while (!exit) {
+            professorMenuView.showMenu();
+            String option = consoleIO.readLine("Select an option [0-2] (0 to log out): ").trim();
+
+            switch (option) {
+                case "1":
+                    professorFormService.createTutoringSession(professor);
+                    break;
+
+                case "2":
+                    handleProfessorSessionManagement(professor);
+                    break;
+
+                case "0":
+                    exit = true;
+                    break;
+
+                default:
+                    consoleIO.writeError("Invalid option. Choose 0, 1, or 2.");
+            }
+
+            if (!exit && !option.equals("2"))
+                consoleIO.readLine("\nPress ENTER to continue...");
+        }
+    }
+
+    private void showPrincipalMenu(User user) {
+        String roleName = user.getRole().getName().toUpperCase();
+
+        try {
+            if ("STUDENT".equals(roleName)) {
+                handleStudentMenu(user);
+            } else if ("PROFESSOR".equals(roleName)) {
+                handleProfessorMenu(user); // Llama al método dedicado del profesor
+            } else {
+                consoleIO.writeError("Unrecognized role. Logging out...");
+            }
+        } catch (Exception e) {
+            logger.error("Unexpected error in principal menu", e);
+            consoleIO.writeError("An unexpected error occurred. Contact support.");
+        }
+
+        currentUser = null;
+        consoleIO.write("Successfully logged out.");
     }
 
     private void handleStudentSearch(User student) {
@@ -263,6 +288,39 @@ public class ConsoleController {
                     exit = true;
                 } else {
                     consoleIO.writeError(result.getMessage());
+                }
+
+            } catch (NumberFormatException e) {
+                consoleIO.writeError("Error: Session ID must be a number.");
+            }
+        }
+    }
+
+    private void handleProfessorSessionManagement(User professor) {
+
+        List<TutoringSession> sessions = tutoringSessionService.getProfessorActiveSessions(professor);
+        professorMenuView.displayProfessorSessions(sessions, consoleIO);
+        boolean exitManagement = false;
+
+        while (!exitManagement) {
+            String input = consoleIO.readLine("Enter Tutoring Session ID to CANCEL (0 to go back): ").trim();
+
+            if ("0".equals(input)) {
+                exitManagement = true;
+                break;
+            }
+
+            try {
+                Long sessionId = Long.parseLong(input);
+                boolean success = tutoringSessionService.cancelSessionById(professor, sessionId);
+
+                if (success) {
+                    consoleIO.write("SUCCESS: Tutoring Session ID " + sessionId + " has been CANCELLED. All associated student enrollments have been updated.");
+                    sessions = tutoringSessionService.getProfessorActiveSessions(professor);
+                    professorMenuView.displayProfessorSessions(sessions, consoleIO);
+
+                } else {
+                    consoleIO.writeError("FAILURE: Could not cancel Session ID " + sessionId + ". Check if it exists or if you are the creator.");
                 }
 
             } catch (NumberFormatException e) {
