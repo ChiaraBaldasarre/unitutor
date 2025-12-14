@@ -48,15 +48,28 @@ public class ConsoleController {
     }
 
     public void run() {
-        showLoginMenu();
+        consoleIO.write("UNI-TUTOR");
+        boolean applicationRunning = true;
+        while (applicationRunning) {
 
-        if (currentUser != null) {
-            showPrincipalMenu(currentUser);
+            String action = showLoginMenu();
+
+            if ("EXIT".equals(action)) {
+                applicationRunning = false;
+            }
+
+            if (currentUser != null) {
+
+                showPrincipalMenu(currentUser);
+            }
+
         }
+
+        consoleIO.write("Exiting the system...");
         consoleIO.closeScanner();
     }
 
-    private void showLoginMenu() {
+    private String showLoginMenu() {
         boolean authenticated = false;
         consoleIO.write("\nAuthentication Module");
         consoleIO.write("Type 'exit' at any time to leave.\n");
@@ -67,7 +80,7 @@ public class ConsoleController {
 
                 if (dni.equalsIgnoreCase("exit")) {
                     consoleIO.write("Exiting the system...");
-                    return;
+                    return "EXIT";
                 }
 
                 String errorMsg = DniValidator.getValidationError(dni);
@@ -85,13 +98,17 @@ public class ConsoleController {
                     this.currentUser = optUser.get();
                     consoleIO.write("Successful login. Welcome " + currentUser.getFirstName() + "!");
                     authenticated = true;
+                    return "SUCCESS";
                 }
             } catch (Exception e) {
                 logger.error("Unexpected error during login", e);
                 consoleIO.writeError("An unexpected error occurred. Contact support.");
-                return;
+                return "EXIT";
             }
+            currentUser = null;
+            consoleIO.write("Successfully logged out. Returning to Authentication Module.");
         }
+        return "EXIT";
     }
 
     private void handleStudentMenu(User student) {

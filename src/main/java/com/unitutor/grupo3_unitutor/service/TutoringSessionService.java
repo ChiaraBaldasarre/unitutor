@@ -26,8 +26,9 @@ public class TutoringSessionService {
     private static final String STATUS_CANCELLED = "CANCELLED";
     private final EnrollmentRepository enrollmentRepository;
 
-    public TutoringSessionService(TutoringSessionRepository sessionRepository, EnrollmentRepository enrollmentRepository,
-                                  ConsoleIO consoleIO, AuthorizationService authorizationService) {
+    public TutoringSessionService(TutoringSessionRepository sessionRepository,
+            EnrollmentRepository enrollmentRepository,
+            ConsoleIO consoleIO, AuthorizationService authorizationService) {
         this.sessionRepository = sessionRepository;
         this.enrollmentRepository = enrollmentRepository;
         this.consoleIO = consoleIO;
@@ -72,7 +73,8 @@ public class TutoringSessionService {
 
     public List<TutoringSession> getProfessorActiveSessions(User professor) {
         authorizationService.checkIsProfessor(professor);
-        return sessionRepository.findByProfessorAndStartTimeAfterAndStatusNot(professor, LocalDateTime.now(), STATUS_CANCELLED);
+        return sessionRepository.findByProfessorAndStartTimeAfterAndStatusNot(professor, LocalDateTime.now(),
+                STATUS_CANCELLED);
 
     }
 
@@ -80,6 +82,7 @@ public class TutoringSessionService {
 
         authorizationService.checkIsProfessor(professor);
 
+        @SuppressWarnings("null")
         Optional<TutoringSession> sessionOpt = sessionRepository.findById(sessionId);
         if (sessionOpt.isEmpty()) {
             return false;
