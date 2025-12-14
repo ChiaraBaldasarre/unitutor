@@ -1,10 +1,11 @@
-package com.unitutor.grupo3_unitutor.service;
+package service;
 
 import com.unitutor.grupo3_unitutor.model.Enrollment;
 import com.unitutor.grupo3_unitutor.model.TutoringSession;
 import com.unitutor.grupo3_unitutor.model.User;
 import com.unitutor.grupo3_unitutor.repository.EnrollmentRepository;
 import com.unitutor.grupo3_unitutor.repository.TutoringSessionRepository;
+import com.unitutor.grupo3_unitutor.service.EnrollmentCancellationService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -17,6 +18,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
+@SuppressWarnings("null")
 class EnrollmentCancellationServiceTest {
 
   private EnrollmentRepository enrollmentRepository;
@@ -43,7 +45,7 @@ class EnrollmentCancellationServiceTest {
 
     when(tutoringSessionRepository.findById(1L)).thenReturn(Optional.of(session));
     when(enrollmentRepository.findByStudentAndSession_Id(student, 1L)).thenReturn(Optional.of(enrollment));
-    when(enrollmentRepository.save(any(Enrollment.class))).thenAnswer(invocation -> invocation.getArgument(0));
+    when(enrollmentRepository.save(any(Enrollment.class))).thenReturn(enrollment);
 
     EnrollmentCancellationService.CancellationResult result = service.cancelEnrollment(student, 1L);
 
@@ -69,7 +71,7 @@ class EnrollmentCancellationServiceTest {
     assertFalse(result.isSuccess());
     assertTrue(result.getMessage().contains("Cancellation not allowed"));
     assertEquals("ACTIVE", enrollment.getStatus());
-    verify(enrollmentRepository, never()).save(any());
+    verify(enrollmentRepository, never()).save(any(Enrollment.class));
   }
 
   @Test
@@ -88,7 +90,7 @@ class EnrollmentCancellationServiceTest {
     EnrollmentCancellationService.CancellationResult notEnrolled = service.cancelEnrollment(student, 4L);
     assertFalse(notEnrolled.isSuccess());
     assertTrue(notEnrolled.getMessage().contains("not enrolled"));
-    verify(enrollmentRepository, never()).save(any());
+    verify(enrollmentRepository, never()).save(any(Enrollment.class));
   }
 
   @Test
@@ -105,7 +107,7 @@ class EnrollmentCancellationServiceTest {
 
     assertFalse(result.isSuccess());
     assertTrue(result.getMessage().toLowerCase().contains("already cancelled"));
-    verify(enrollmentRepository, never()).save(any());
+    verify(enrollmentRepository, never()).save(any(Enrollment.class));
   }
 
   @Test
@@ -116,7 +118,7 @@ class EnrollmentCancellationServiceTest {
 
     when(tutoringSessionRepository.findById(6L)).thenReturn(Optional.of(session));
     when(enrollmentRepository.findByStudentAndSession_Id(student, 6L)).thenReturn(Optional.of(enrollment));
-    when(enrollmentRepository.save(any())).thenThrow(new DataAccessResourceFailureException("DB down"));
+    when(enrollmentRepository.save(any(Enrollment.class))).thenThrow(new DataAccessResourceFailureException("DB down"));
 
     EnrollmentCancellationService.CancellationResult result = service.cancelEnrollment(student, 6L);
 
