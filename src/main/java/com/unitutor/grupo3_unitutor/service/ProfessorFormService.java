@@ -150,7 +150,8 @@ public class ProfessorFormService {
                         break;
 
                     case 5:
-                        input = consoleIO.readLine("\nSTEP 5/5: Enter Modality (ONLINE or PRESENCIAL | Back/Exit): ").toUpperCase().trim();
+                        input = consoleIO.readLine("\nSTEP 5/5: Enter Modality (ONLINE or PRESENCIAL | Back/Exit): ")
+                                .toUpperCase().trim();
 
                         if (input.equalsIgnoreCase("exit")) {
                             exitForm = true;
@@ -158,14 +159,12 @@ public class ProfessorFormService {
 
                         } else if (input.equalsIgnoreCase("back")) {
                             step--;
-                            valid = true;
                             break;
                         }
 
                         if ("ONLINE".equals(input) || "PRESENCIAL".equals(input)) {
                             session.setModality(input);
                             step++;
-                            valid = true;
                         } else {
                             consoleIO.writeError("ERROR: Modality must be ONLINE or PRESENCIAL.");
                         }

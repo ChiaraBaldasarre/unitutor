@@ -20,12 +20,14 @@ public class StudentSessionController {
   private final ConsoleIO consoleIO;
   private final StudentMenuView studentMenuView;
   private final StudentProgressService studentProgressService;
+  private final TutoringSessionService tutoringSessionService;
 
   public StudentSessionController(ConsoleIO consoleIO, StudentMenuView studentMenuView,
-      StudentProgressService studentProgressService) {
+      StudentProgressService studentProgressService, TutoringSessionService tutoringSessionService) {
     this.consoleIO = consoleIO;
     this.studentMenuView = studentMenuView;
     this.studentProgressService = studentProgressService;
+    this.tutoringSessionService = tutoringSessionService;
   }
 
   public void searchAndBookSessions(User student) {
@@ -77,7 +79,7 @@ public class StudentSessionController {
   private void searchBySubject() {
     try {
       String subject = consoleIO.readLine("Enter subject to search: ").trim();
-      var bySubject = TutoringSessionService.searchSessions(subject, null, null);
+      var bySubject = tutoringSessionService.searchSessions(subject, null, null);
 
       if (bySubject.isEmpty()) {
         consoleIO.write("No tutoring sessions found for that subject.");
@@ -96,7 +98,7 @@ public class StudentSessionController {
     try {
       String dateInput = consoleIO.readLine("Enter date (YYYY-MM-DD): ").trim();
       LocalDateTime date = LocalDateTime.parse(dateInput + "T00:00:00");
-      var byDate = TutoringSessionService.searchSessions(null, date, null);
+      var byDate = tutoringSessionService.searchSessions(null, date, null);
 
       if (byDate.isEmpty()) {
         consoleIO.write("No tutoring sessions found.");
@@ -120,7 +122,7 @@ public class StudentSessionController {
         return;
       }
 
-      var byMod = TutoringSessionService.searchSessions(null, null, mod);
+      var byMod = tutoringSessionService.searchSessions(null, null, mod);
 
       if (byMod.isEmpty()) {
         consoleIO.write("No tutoring sessions found.");
