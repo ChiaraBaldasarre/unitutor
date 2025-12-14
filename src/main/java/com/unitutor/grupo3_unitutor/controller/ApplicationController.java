@@ -51,7 +51,7 @@ public class ApplicationController {
   private void showMainMenu(User user) {
     String roleName = user.getRole().getName().toUpperCase();
     boolean exit = false;
-
+    String opt1 = "";
     while (!exit) {
       try {
         if ("STUDENT".equals(roleName)) {
@@ -68,7 +68,7 @@ public class ApplicationController {
         switch (option) {
           case "1":
             if ("STUDENT".equals(roleName)) {
-              studentSessionController.searchAndBookSessions(user);
+              opt1 = studentSessionController.searchAndBookSessions(user);
             } else if ("PROFESSOR".equals(roleName)) {
               professorSessionController.createSession(user);
             }
@@ -100,7 +100,11 @@ public class ApplicationController {
         }
 
         if (!exit) {
-          consoleIO.readLine("\nPress ENTER to return to the menu...");
+          if (opt1.equals("0") == false) {
+            consoleIO.readLine("\nPress ENTER to return to the menu...");
+          }
+        } else {
+          run();
         }
       } catch (Exception e) {
         logger.error("Unexpected error in main menu", e);
