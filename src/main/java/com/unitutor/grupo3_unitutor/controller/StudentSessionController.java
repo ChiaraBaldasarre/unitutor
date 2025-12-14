@@ -30,13 +30,13 @@ public class StudentSessionController {
     this.tutoringSessionService = tutoringSessionService;
   }
 
-  public void searchAndBookSessions(User student) {
+  public String searchAndBookSessions(User student) {
     boolean exit = false;
-
+    String opt = "";
     while (!exit) {
       studentMenuView.showSearchFilters();
 
-      String opt = consoleIO.readLine("Select filter [0-3] (0 to go back): ").trim();
+      opt = consoleIO.readLine("Select filter [0-3] (0 to go back): ").trim();
 
       switch (opt) {
         case "1":
@@ -58,11 +58,12 @@ public class StudentSessionController {
         default:
           consoleIO.writeError("Invalid option. Choose 0, 1, 2, or 3.");
       }
-
+      System.out.println(opt);
       if (!exit) {
         consoleIO.readLine("\nPress ENTER to continue...");
       }
     }
+    return opt;
   }
 
   public void viewTutoringHistory(User student) {
