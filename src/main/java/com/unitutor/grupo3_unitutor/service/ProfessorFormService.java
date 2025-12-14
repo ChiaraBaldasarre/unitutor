@@ -37,7 +37,6 @@ public class ProfessorFormService {
 
         while (!exitForm) {
             String input;
-            boolean valid = false;
 
             try {
                 switch (step) {
@@ -55,7 +54,6 @@ public class ProfessorFormService {
                         } else {
                             session.setSubject(input);
                             step++;
-                            valid = true;
                         }
                         break;
 
@@ -70,7 +68,6 @@ public class ProfessorFormService {
 
                         } else if (input.equalsIgnoreCase("back")) {
                             step--;
-                            valid = true;
                             break;
                         }
 
@@ -85,7 +82,6 @@ public class ProfessorFormService {
                             } else {
                                 session.setStartTime(startTime);
                                 step++;
-                                valid = true;
                             }
 
                         } catch (DateTimeParseException e) {
@@ -104,7 +100,6 @@ public class ProfessorFormService {
 
                         } else if (input.equalsIgnoreCase("back")) {
                             step--;
-                            valid = true;
                             break;
                         }
 
@@ -117,7 +112,6 @@ public class ProfessorFormService {
                             } else {
                                 session.setDurationMinutes(duration);
                                 step++;
-                                valid = true;
                             }
 
                         } catch (NumberFormatException e) {
@@ -136,7 +130,6 @@ public class ProfessorFormService {
 
                         } else if (input.equalsIgnoreCase("back")) {
                             step--;
-                            valid = true;
                             break;
                         }
 
@@ -149,7 +142,6 @@ public class ProfessorFormService {
                             } else {
                                 session.setMaxCapacity(capacity);
                                 step++;
-                                valid = true;
                             }
 
                         } catch (NumberFormatException e) {
@@ -174,7 +166,6 @@ public class ProfessorFormService {
 
                         } else if (input.equalsIgnoreCase("back")) {
                             step--;
-                            valid = true;
                             break;
 
                         } else if (input.equalsIgnoreCase("y")) {
@@ -190,8 +181,6 @@ public class ProfessorFormService {
                                         "\nFAILURE: Could not create the tutoring session due to a system error. Please try again later.");
                                 exitForm = true;
                             }
-                            valid = true;
-
                         } else {
                             consoleIO.writeError("Invalid option. Please enter Y, N, Back, or Exit.");
                         }
