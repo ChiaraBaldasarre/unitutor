@@ -35,7 +35,8 @@ public class ConsoleController {
     private final TutoringSessionService tutoringSessionService;
 
     public ConsoleController(UserService userService, StudentMenuView studentMenuView,
-            ProfessorMenuView professorMenuView, ProfessorFormService professorFormService, EnrollmentCancellationService enrollmentCancellationService, ConsoleIO consoleIO,
+            ProfessorMenuView professorMenuView, ProfessorFormService professorFormService,
+            EnrollmentCancellationService enrollmentCancellationService, ConsoleIO consoleIO,
             StudentProgressService studentProgressService, TutoringSessionService tutoringSessionService) {
         this.userService = userService;
         this.professorFormService = professorFormService;
@@ -354,12 +355,14 @@ public class ConsoleController {
                 boolean success = tutoringSessionService.cancelSessionById(professor, sessionId);
 
                 if (success) {
-                    consoleIO.write("SUCCESS: Tutoring Session ID " + sessionId + " has been CANCELLED. All associated student enrollments have been updated.");
+                    consoleIO.write("SUCCESS: Tutoring Session ID " + sessionId
+                            + " has been CANCELLED. All associated student enrollments have been updated.");
                     sessions = tutoringSessionService.getProfessorActiveSessions(professor);
                     professorMenuView.displayProfessorSessions(sessions, consoleIO);
 
                 } else {
-                    consoleIO.writeError("FAILURE: Could not cancel Session ID " + sessionId + ". Check if it exists or if you are the creator.");
+                    consoleIO.writeError("FAILURE: Could not cancel Session ID " + sessionId
+                            + ". Check if it exists or if you are the creator.");
                 }
 
             } catch (NumberFormatException e) {
