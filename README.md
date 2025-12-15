@@ -89,9 +89,16 @@ Database: MySQL
 ## 7. How to use the program (step by step)
 
 1. **Prerequisites:** JDK 17 installed. Maven is not required separately; the wrapper (`mvnw.cmd`) is included.
-2. **Build and run:** In PowerShell inside the project directory, run: `./mvnw.cmd spring-boot:run`. Wait until the app starts without errors.
-3. **Login:** In the console, enter your DNI (8 digits). The system auto-detects whether you are STUDENT or PROFESSOR.
-4. **Main menu:**
+2. **Configuration**
+  Configure your `src/main/resources/application.properties` file with the following settings to optimize logging and SQL output:
+  spring.jpa.show-sql=false
+  logging.console.enabled=false
+  spring.jpa.properties.hibernate.format_sql=false
+  logging.level.org.hibernate.SQL=WARN
+  logging.level.org.hibernate.type.descriptor.sql=WARN
+3. **Build and run:** In PowerShell inside the project directory, run: `./mvnw.cmd spring-boot:run`. Wait until the app starts without errors.
+4. **Login:** In the console, enter your DNI (8 digits). The system auto-detects whether you are STUDENT or PROFESSOR.
+5. **Main menu:**
 
 - STUDENT: options to search tutoring sessions, view history, and cancel enrollments.
 - PROFESSOR: options to create sessions, manage active sessions, and upload grades.
