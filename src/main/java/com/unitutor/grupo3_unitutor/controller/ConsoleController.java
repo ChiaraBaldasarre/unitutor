@@ -35,7 +35,8 @@ public class ConsoleController {
     private final TutoringSessionService tutoringSessionService;
 
     public ConsoleController(UserService userService, StudentMenuView studentMenuView,
-            ProfessorMenuView professorMenuView, ProfessorFormService professorFormService, EnrollmentCancellationService enrollmentCancellationService, ConsoleIO consoleIO,
+            ProfessorMenuView professorMenuView, ProfessorFormService professorFormService,
+            EnrollmentCancellationService enrollmentCancellationService, ConsoleIO consoleIO,
             StudentProgressService studentProgressService, TutoringSessionService tutoringSessionService) {
         this.userService = userService;
         this.professorFormService = professorFormService;
@@ -48,15 +49,28 @@ public class ConsoleController {
     }
 
     public void run() {
-        showLoginMenu();
+        consoleIO.write("UNI-TUTOR");
+        boolean applicationRunning = true;
+        while (applicationRunning) {
 
-        if (currentUser != null) {
-            showPrincipalMenu(currentUser);
+            String action = showLoginMenu();
+
+            if ("EXIT".equals(action)) {
+                applicationRunning = false;
+            }
+
+            if (currentUser != null) {
+
+                showPrincipalMenu(currentUser);
+            }
+
         }
+
+        consoleIO.write("Exiting the system...");
         consoleIO.closeScanner();
     }
 
-    private void showLoginMenu() {
+    private String showLoginMenu() {
         boolean authenticated = false;
         consoleIO.write("\nAuthentication Module");
         consoleIO.write("Type 'exit' at any time to leave.\n");
@@ -67,7 +81,7 @@ public class ConsoleController {
 
                 if (dni.equalsIgnoreCase("exit")) {
                     consoleIO.write("Exiting the system...");
-                    return;
+                    return "EXIT";
                 }
 
                 String errorMsg = DniValidator.getValidationError(dni);
@@ -85,13 +99,17 @@ public class ConsoleController {
                     this.currentUser = optUser.get();
                     consoleIO.write("Successful login. Welcome " + currentUser.getFirstName() + "!");
                     authenticated = true;
+                    return "SUCCESS";
                 }
             } catch (Exception e) {
                 logger.error("Unexpected error during login", e);
                 consoleIO.writeError("An unexpected error occurred. Contact support.");
-                return;
+                return "EXIT";
             }
+            currentUser = null;
+            consoleIO.write("Successfully logged out. Returning to Authentication Module.");
         }
+        return "EXIT";
     }
 
     private void handleStudentMenu(User student) {
@@ -184,6 +202,38 @@ public class ConsoleController {
         consoleIO.write("Successfully logged out.");
     }
 
+    private boolean showResultsAndEnrollIfRequested(User student, List<TutoringSession> results) {
+
+        if (results == null || results.isEmpty()) {
+            consoleIO.write("No tutoring sessions found.");
+            return false;
+        }
+
+        consoleIO.write("--- Results ---");
+        results.forEach(s -> consoleIO.write(
+                s.getId() + " | " + s.getSubject() + " | " + s.getStartTime() + " | " + s.getModality()
+        ));
+
+        String input = consoleIO.readLine("\nEnter Tutoring Session ID to ENROLL (0 to go back): ").trim();
+
+        if ("0".equals(input)) {
+            return false; // vuelve al filtro
+        }
+
+        try {
+            Long sessionId = Long.parseLong(input);
+            boolean enrolled = tutoringSessionService.enrollStudent(student, sessionId);
+
+            // ✅ UNI-020: si se inscribe bien, salimos al menú principal del estudiante
+            return enrolled;
+
+        } catch (NumberFormatException e) {
+            consoleIO.writeError("Error: Session ID must be a number.");
+            return false;
+        }
+    }
+
+
     private void handleStudentSearch(User student) {
 
         boolean exit = false;
@@ -199,14 +249,11 @@ public class ConsoleController {
                     String subject = consoleIO.readLine("Enter subject to search: ").trim();
                     var bySubject = tutoringSessionService.searchSessions(subject, null, null);
 
-                    if (bySubject.isEmpty()) {
-                        consoleIO.write("No tutoring sessions found for that subject.");
-                    } else {
-                        consoleIO.write("--- Results ---");
-                        bySubject.forEach(s -> consoleIO.write(s.getId() + " | " + s.getSubject() + " | "
-                                + s.getStartTime() + " | " + s.getModality()));
-                    }
+                    boolean goMain1 = showResultsAndEnrollIfRequested(student, bySubject);
+                    if (goMain1) exit = true;
+
                     break;
+
 
                 case "2":
                     String dateInput = consoleIO.readLine("Enter date (YYYY-MM-DD): ").trim();
@@ -214,18 +261,14 @@ public class ConsoleController {
                         LocalDateTime date = LocalDateTime.parse(dateInput + "T00:00:00");
                         var byDate = tutoringSessionService.searchSessions(null, date, null);
 
-                        if (byDate.isEmpty()) {
-                            consoleIO.write("No tutoring sessions found.");
-                        } else {
-                            consoleIO.write("--- Results ---");
-                            byDate.forEach(s -> consoleIO.write(s.getId() + " | " + s.getSubject() + " | "
-                                    + s.getStartTime() + " | " + s.getModality()));
-                        }
+                        boolean goMain2 = showResultsAndEnrollIfRequested(student, byDate);
+                        if (goMain2) exit = true;
 
                     } catch (Exception e) {
                         consoleIO.writeError("Error: Date must use format YYYY-MM-DD.");
                     }
                     break;
+
 
                 case "3":
                     String mod = consoleIO.readLine("Enter modality (ONLINE or PRESENCIAL): ").toUpperCase().trim();
@@ -237,14 +280,11 @@ public class ConsoleController {
 
                     var byMod = tutoringSessionService.searchSessions(null, null, mod);
 
-                    if (byMod.isEmpty()) {
-                        consoleIO.write("No tutoring sessions found.");
-                    } else {
-                        consoleIO.write("--- Results ---");
-                        byMod.forEach(s -> consoleIO.write(s.getId() + " | " + s.getSubject() + " | " + s.getStartTime()
-                                + " | " + s.getModality()));
-                    }
+                    boolean goMain3 = showResultsAndEnrollIfRequested(student, byMod);
+                    if (goMain3) exit = true;
+
                     break;
+
 
                 case "0":
                     exit = true;
@@ -315,12 +355,14 @@ public class ConsoleController {
                 boolean success = tutoringSessionService.cancelSessionById(professor, sessionId);
 
                 if (success) {
-                    consoleIO.write("SUCCESS: Tutoring Session ID " + sessionId + " has been CANCELLED. All associated student enrollments have been updated.");
+                    consoleIO.write("SUCCESS: Tutoring Session ID " + sessionId
+                            + " has been CANCELLED. All associated student enrollments have been updated.");
                     sessions = tutoringSessionService.getProfessorActiveSessions(professor);
                     professorMenuView.displayProfessorSessions(sessions, consoleIO);
 
                 } else {
-                    consoleIO.writeError("FAILURE: Could not cancel Session ID " + sessionId + ". Check if it exists or if you are the creator.");
+                    consoleIO.writeError("FAILURE: Could not cancel Session ID " + sessionId
+                            + ". Check if it exists or if you are the creator.");
                 }
 
             } catch (NumberFormatException e) {

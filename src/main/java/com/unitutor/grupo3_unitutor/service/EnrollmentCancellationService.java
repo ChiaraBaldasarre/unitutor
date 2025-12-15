@@ -25,13 +25,14 @@ public class EnrollmentCancellationService {
     private final TutoringSessionRepository tutoringSessionRepository;
 
     public EnrollmentCancellationService(EnrollmentRepository enrollmentRepository,
-                                         TutoringSessionRepository tutoringSessionRepository) {
+            TutoringSessionRepository tutoringSessionRepository) {
         this.enrollmentRepository = enrollmentRepository;
         this.tutoringSessionRepository = tutoringSessionRepository;
     }
 
     public CancellationResult cancelEnrollment(User student, Long sessionId) {
         try {
+            @SuppressWarnings("null")
             Optional<TutoringSession> sessionOpt = tutoringSessionRepository.findById(sessionId);
             if (sessionOpt.isEmpty()) {
                 return CancellationResult.failure("Error: The requested course does not exist.");
@@ -49,7 +50,8 @@ public class EnrollmentCancellationService {
             if (STATUS_CANCELLED.equalsIgnoreCase(enrollment.getStatus())) {
                 LocalDateTime cancelledAt = enrollment.getCancellationDate();
                 String when = cancelledAt != null ? cancelledAt.format(FORMATTER) : "previously";
-                return CancellationResult.failure("Your enrollment was already cancelled on " + when + ". No changes made.");
+                return CancellationResult
+                        .failure("Your enrollment was already cancelled on " + when + ". No changes made.");
             }
 
             LocalDateTime now = LocalDateTime.now();
@@ -58,7 +60,8 @@ public class EnrollmentCancellationService {
             if (!now.isBefore(cutoff)) {
                 String cutoffText = cutoff.format(FORMATTER);
                 String startText = session.getStartTime().format(FORMATTER);
-                return CancellationResult.failure("Cancellation not allowed. Cutoff was " + cutoffText + ". Session starts at " + startText + ".");
+                return CancellationResult.failure("Cancellation not allowed. Cutoff was " + cutoffText
+                        + ". Session starts at " + startText + ".");
             }
 
             enrollment.setStatus(STATUS_CANCELLED);
@@ -66,12 +69,15 @@ public class EnrollmentCancellationService {
             enrollment.setCancelledBy(student.getDni());
             enrollmentRepository.save(enrollment);
 
-            String message = "Cancellation successful for '" + session.getSubject() + "' at " + now.format(FORMATTER) + ".";
+            String message = "Cancellation successful for '" + session.getSubject() + "' at " + now.format(FORMATTER)
+                    + ".";
             return CancellationResult.success(message);
 
         } catch (DataAccessException e) {
-            logger.error("Database error during enrollment cancellation for sessionId={} and student={}", sessionId, student.getDni(), e);
-            return CancellationResult.failure("Could not complete cancellation due to a system error. Please try again later.");
+            logger.error("Database error during enrollment cancellation for sessionId={} and student={}", sessionId,
+                    student.getDni(), e);
+            return CancellationResult
+                    .failure("Could not complete cancellation due to a system error. Please try again later.");
         } catch (Exception e) {
             logger.error("Unexpected error during enrollment cancellation", e);
             return CancellationResult.failure("An unexpected error occurred. Please contact support.");
