@@ -24,6 +24,7 @@ public class TutoringSessionService {
     private final ConsoleIO consoleIO;
     private final AuthorizationService authorizationService;
     private static final String STATUS_CANCELLED = "CANCELLED";
+    private static final String STATUS_ACTIVE = "ACTIVE";
     private final EnrollmentRepository enrollmentRepository;
 
     public TutoringSessionService(TutoringSessionRepository sessionRepository,
@@ -120,4 +121,81 @@ public class TutoringSessionService {
             return false;
         }
     }
+
+    public boolean enrollStudent(User student, Long sessionId) {
+
+        if (student == null) {
+            consoleIO.writeError("Error: Student not found.");
+            return false;
+        }
+
+        Optional<TutoringSession> sessionOpt = sessionRepository.findById(sessionId);
+        if (sessionOpt.isEmpty()) {
+            consoleIO.writeError("Error: Tutoring session not found.");
+            return false;
+        }
+
+        TutoringSession session = sessionOpt.get();
+
+        // No permitir inscripción en sesiones canceladas
+        if (STATUS_CANCELLED.equalsIgnoreCase(session.getStatus())) {
+            consoleIO.writeError("Error: This tutoring session is CANCELLED.");
+            return false;
+        }
+
+        // No permitir inscripción en sesiones pasadas
+        if (session.getStartTime().isBefore(LocalDateTime.now())) {
+            consoleIO.writeError("Error: You cannot enroll in a past session.");
+            return false;
+        }
+
+        // Ver si ya existe inscripción
+        Optional<Enrollment> existingOpt = enrollmentRepository.findByStudentAndSession_Id(student, sessionId);
+
+        if (existingOpt.isPresent()) {
+            Enrollment existing = existingOpt.get();
+
+            // Si ya estaba activo, no duplicar
+            if (!STATUS_CANCELLED.equalsIgnoreCase(existing.getStatus())) {
+                consoleIO.writeError("Error: You are already enrolled in this session.");
+                return false;
+            }
+
+            // Si estaba CANCELLED, reactivar
+            existing.setStatus(STATUS_ACTIVE);
+            existing.setEnrollmentDate(LocalDateTime.now());
+            existing.setCancellationDate(null);
+            existing.setCancelledBy(null);
+            enrollmentRepository.save(existing);
+
+            consoleIO.write("Enrollment reactivated successfully.");
+            return true;
+        }
+
+        // Validar cupo (cuenta enrollments NO cancelados)
+        List<Enrollment> all = enrollmentRepository.findBySession_Id(sessionId);
+        long activeCount = all.stream()
+                .filter(e -> e.getStatus() == null || !STATUS_CANCELLED.equalsIgnoreCase(e.getStatus()))
+                .count();
+
+        if (activeCount >= session.getMaxCapacity()) {
+            consoleIO.writeError("Error: This tutoring session is already full.");
+            return false;
+        }
+
+        // Crear nuevo enrollment
+        Enrollment enrollment = new Enrollment();
+        enrollment.setStudent(student);
+        enrollment.setSession(session);
+        enrollment.setStatus(STATUS_ACTIVE);
+        enrollment.setEnrollmentDate(LocalDateTime.now());
+
+        enrollmentRepository.save(enrollment);
+
+        consoleIO.write("Enrollment successful!");
+        return true;
+    }
+
+
+
 }

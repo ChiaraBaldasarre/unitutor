@@ -1,6 +1,7 @@
 package com.unitutor.grupo3_unitutor.controller;
 
 import com.unitutor.grupo3_unitutor.model.SessionHistory;
+import com.unitutor.grupo3_unitutor.model.TutoringSession;
 import com.unitutor.grupo3_unitutor.model.User;
 import com.unitutor.grupo3_unitutor.service.StudentProgressService;
 import com.unitutor.grupo3_unitutor.service.TutoringSessionService;
@@ -30,41 +31,111 @@ public class StudentSessionController {
     this.tutoringSessionService = tutoringSessionService;
   }
 
+  private boolean showResultsAndEnrollIfRequested(User student, List<TutoringSession> results) {
+
+    if (results == null || results.isEmpty()) {
+      consoleIO.write("No tutoring sessions found.");
+      return false;
+    }
+
+    consoleIO.write("--- Results ---");
+    for (int i = 0; i < results.size(); i++) {
+      TutoringSession s = results.get(i);
+      consoleIO.write(
+              (i + 1) + ") " +
+                      s.getSubject() + " | " +
+                      s.getStartTime() + " | " +   // if your getter name differs, change it (e.g., getTimeStart())
+                      s.getModality()
+      );
+    }
+
+    String decision = consoleIO.readLine("\nDo you want to enroll in one of these sessions? (Y/N): ")
+            .trim().toUpperCase();
+
+    if (!"Y".equals(decision)) {
+      return false;
+    }
+
+    String input = consoleIO.readLine("Select a session number (1-" + results.size() + ", 0 to cancel): ")
+            .trim();
+
+    try {
+      int choice = Integer.parseInt(input);
+
+      if (choice == 0) return false;
+
+      if (choice < 1 || choice > results.size()) {
+        consoleIO.writeError("Invalid selection.");
+        return false;
+      }
+
+      Long sessionId = results.get(choice - 1).getId(); // real ID hidden from student
+      return tutoringSessionService.enrollStudent(student, sessionId);
+
+    } catch (NumberFormatException e) {
+      consoleIO.writeError("Please enter a valid number.");
+      return false;
+    }
+  }
+
+
+
   public String searchAndBookSessions(User student) {
-    boolean exit = false;
-    String opt = "";
-    while (!exit) {
+
+    String opt;
+    while (true) {
+
       studentMenuView.showSearchFilters();
 
       opt = consoleIO.readLine("Select filter [0-3] (0 to go back): ").trim();
 
       switch (opt) {
-        case "1":
-          searchBySubject();
-          break;
 
-        case "2":
-          searchByDate();
-          break;
+        case "1": {
+          String subject = consoleIO.readLine("Enter subject to search: ").trim();
+          List<TutoringSession> results = tutoringSessionService.searchSessions(subject, null, null);
 
-        case "3":
-          searchByModality();
+          if (showResultsAndEnrollIfRequested(student, results)) return opt;
           break;
+        }
+
+        case "2": {
+          String dateInput = consoleIO.readLine("Enter date (YYYY-MM-DD): ").trim();
+          try {
+            LocalDateTime date = LocalDateTime.parse(dateInput + "T00:00:00");
+            List<TutoringSession> results = tutoringSessionService.searchSessions(null, date, null);
+
+            if (showResultsAndEnrollIfRequested(student, results)) return opt;
+          } catch (Exception e) {
+            consoleIO.writeError("Error: Date must use format YYYY-MM-DD.");
+          }
+          break;
+        }
+
+        case "3": {
+          String mod = consoleIO.readLine("Enter modality (ONLINE or PRESENCIAL): ").trim().toUpperCase();
+
+          if (!"ONLINE".equals(mod) && !"PRESENCIAL".equals(mod)) {
+            consoleIO.writeError("Error: Modality must be ONLINE or PRESENCIAL.");
+            break;
+          }
+
+          List<TutoringSession> results = tutoringSessionService.searchSessions(null, null, mod);
+
+          if (showResultsAndEnrollIfRequested(student, results)) return opt;
+          break;
+        }
 
         case "0":
-          exit = true;
-          break;
+          return opt;
 
         default:
           consoleIO.writeError("Invalid option. Choose 0, 1, 2, or 3.");
       }
-      System.out.println(opt);
-      if (!exit) {
-        consoleIO.readLine("\nPress ENTER to continue...");
-      }
+
     }
-    return opt;
   }
+
 
   public void viewTutoringHistory(User student) {
     try {
