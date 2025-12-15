@@ -44,22 +44,20 @@ public class StudentSessionController {
       consoleIO.write(
               (i + 1) + ") " +
                       s.getSubject() + " | " +
-                      s.getStartTime() + " | " +
+                      s.getStartTime() + " | " +   // if your getter name differs, change it (e.g., getTimeStart())
                       s.getModality()
       );
     }
 
-    String decision = consoleIO.readLine(
-            "\nDo you want to enroll in one of these sessions? (Y/N): "
-    ).trim().toUpperCase();
+    String decision = consoleIO.readLine("\nDo you want to enroll in one of these sessions? (Y/N): ")
+            .trim().toUpperCase();
 
     if (!"Y".equals(decision)) {
       return false;
     }
 
-    String input = consoleIO.readLine(
-            "Select a session number (1-" + results.size() + ", 0 to cancel): "
-    ).trim();
+    String input = consoleIO.readLine("Select a session number (1-" + results.size() + ", 0 to cancel): ")
+            .trim();
 
     try {
       int choice = Integer.parseInt(input);
@@ -71,21 +69,22 @@ public class StudentSessionController {
         return false;
       }
 
-      Long sessionId = results.get(choice - 1).getId(); // 👈 ID REAL (oculta)
-      boolean enrolled = tutoringSessionService.enrollStudent(student, sessionId);
-
-      return enrolled;
+      Long sessionId = results.get(choice - 1).getId(); // real ID hidden from student
+      return tutoringSessionService.enrollStudent(student, sessionId);
 
     } catch (NumberFormatException e) {
       consoleIO.writeError("Please enter a valid number.");
       return false;
-      }
+    }
   }
+
+
 
   public void searchAndBookSessions(User student) {
 
     while (true) {
       studentMenuView.showSearchFilters();
+
       String opt = consoleIO.readLine("Select filter [0-3] (0 to go back): ").trim();
 
       switch (opt) {
@@ -94,7 +93,7 @@ public class StudentSessionController {
           String subject = consoleIO.readLine("Enter subject to search: ").trim();
           List<TutoringSession> results = tutoringSessionService.searchSessions(subject, null, null);
 
-          if (showResultsAndEnrollIfRequested(student, results)) return;
+          if (showResultsAndEnrollIfRequested(student, results)) return; // go back to main student menu
           break;
         }
 
@@ -112,7 +111,7 @@ public class StudentSessionController {
         }
 
         case "3": {
-          String mod = consoleIO.readLine("Enter modality (ONLINE or PRESENCIAL): ").toUpperCase().trim();
+          String mod = consoleIO.readLine("Enter modality (ONLINE or PRESENCIAL): ").trim().toUpperCase();
 
           if (!"ONLINE".equals(mod) && !"PRESENCIAL".equals(mod)) {
             consoleIO.writeError("Error: Modality must be ONLINE or PRESENCIAL.");
@@ -130,9 +129,10 @@ public class StudentSessionController {
 
         default:
           consoleIO.writeError("Invalid option. Choose 0, 1, 2, or 3.");
-        }
       }
+    }
   }
+
 
   public void viewTutoringHistory(User student) {
     try {
