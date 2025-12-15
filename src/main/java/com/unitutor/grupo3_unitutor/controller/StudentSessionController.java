@@ -80,12 +80,13 @@ public class StudentSessionController {
 
 
 
-  public void searchAndBookSessions(User student) {
+  public String searchAndBookSessions(User student) {
 
+    String opt;
     while (true) {
       studentMenuView.showSearchFilters();
 
-      String opt = consoleIO.readLine("Select filter [0-3] (0 to go back): ").trim();
+      opt = consoleIO.readLine("Select filter [0-3] (0 to go back): ").trim();
 
       switch (opt) {
 
@@ -93,7 +94,7 @@ public class StudentSessionController {
           String subject = consoleIO.readLine("Enter subject to search: ").trim();
           List<TutoringSession> results = tutoringSessionService.searchSessions(subject, null, null);
 
-          if (showResultsAndEnrollIfRequested(student, results)) return; // go back to main student menu
+          if (showResultsAndEnrollIfRequested(student, results)) return opt;
           break;
         }
 
@@ -103,7 +104,7 @@ public class StudentSessionController {
             LocalDateTime date = LocalDateTime.parse(dateInput + "T00:00:00");
             List<TutoringSession> results = tutoringSessionService.searchSessions(null, date, null);
 
-            if (showResultsAndEnrollIfRequested(student, results)) return;
+            if (showResultsAndEnrollIfRequested(student, results)) return opt;
           } catch (Exception e) {
             consoleIO.writeError("Error: Date must use format YYYY-MM-DD.");
           }
@@ -120,12 +121,12 @@ public class StudentSessionController {
 
           List<TutoringSession> results = tutoringSessionService.searchSessions(null, null, mod);
 
-          if (showResultsAndEnrollIfRequested(student, results)) return;
+          if (showResultsAndEnrollIfRequested(student, results)) return opt;
           break;
         }
 
         case "0":
-          return;
+          return opt;
 
         default:
           consoleIO.writeError("Invalid option. Choose 0, 1, 2, or 3.");
