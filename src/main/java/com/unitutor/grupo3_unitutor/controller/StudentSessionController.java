@@ -31,7 +31,6 @@ public class StudentSessionController {
     this.tutoringSessionService = tutoringSessionService;
   }
 
-<<<<<<< src/main/java/com/unitutor/grupo3_unitutor/controller/StudentSessionController.java
   private boolean showResultsAndEnrollIfRequested(User student, List<TutoringSession> results) {
 
     if (results == null || results.isEmpty()) {
@@ -85,9 +84,7 @@ public class StudentSessionController {
 
     String opt;
     while (true) {
-=======
-  
->>>>>>> src/main/java/com/unitutor/grupo3_unitutor/controller/StudentSessionController.java
+
       studentMenuView.showSearchFilters();
 
       opt = consoleIO.readLine("Select filter [0-3] (0 to go back): ").trim();
@@ -135,12 +132,8 @@ public class StudentSessionController {
         default:
           consoleIO.writeError("Invalid option. Choose 0, 1, 2, or 3.");
       }
-<<<<<<< src/main/java/com/unitutor/grupo3_unitutor/controller/StudentSessionController.java
-=======
-    
->>>>>>> src/main/java/com/unitutor/grupo3_unitutor/controller/StudentSessionController.java
+
     }
-    return opt;
   }
 
 
