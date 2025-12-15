@@ -4,7 +4,6 @@ import com.unitutor.grupo3_unitutor.model.TutoringSession;
 import com.unitutor.grupo3_unitutor.repository.EnrollmentRepository;
 import com.unitutor.grupo3_unitutor.repository.TutoringSessionRepository;
 import com.unitutor.grupo3_unitutor.view.ConsoleIO;
-import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 import com.unitutor.grupo3_unitutor.model.User;
 import com.unitutor.grupo3_unitutor.model.Enrollment;
@@ -28,8 +27,8 @@ public class TutoringSessionService {
     private final EnrollmentRepository enrollmentRepository;
 
     public TutoringSessionService(TutoringSessionRepository sessionRepository,
-            EnrollmentRepository enrollmentRepository,
-            ConsoleIO consoleIO, AuthorizationService authorizationService) {
+                                  EnrollmentRepository enrollmentRepository,
+                                  ConsoleIO consoleIO, AuthorizationService authorizationService) {
         this.sessionRepository = sessionRepository;
         this.enrollmentRepository = enrollmentRepository;
         this.consoleIO = consoleIO;
@@ -37,54 +36,29 @@ public class TutoringSessionService {
     }
 
     public Optional<TutoringSession> createSession(User professor, TutoringSession session) {
-        authorizationService.checkIsProfessor(professor);
-        if (session.getStartTime().isBefore(LocalDateTime.now())) {
-            return Optional.empty();
-        }
-
         try {
+            authorizationService.checkIsProfessor(professor);
+
+            session.setStatus(STATUS_ACTIVE);
             TutoringSession savedSession = sessionRepository.save(session);
             return Optional.of(savedSession);
-
-        } catch (DataAccessException e) {
-            logger.error("Database error during tutoring session creation", e);
-            consoleIO.writeError("An unexpected error occurred. Contact support.");
+        } catch (Exception e) {
+            logger.error("Database error creating session for professor {}", professor.getDni(), e);
             return Optional.empty();
         }
-    }
-
-    public List<TutoringSession> searchSessions(String subject, LocalDateTime date, String modality) {
-
-        if (subject != null && !subject.isBlank()) {
-            return sessionRepository.findBySubjectIgnoreCase(subject);
-        }
-
-        if (date != null) {
-            LocalDateTime start = date.withHour(0).withMinute(0);
-            LocalDateTime end = date.withHour(23).withMinute(59);
-            return sessionRepository.findByStartTimeBetween(start, end);
-        }
-
-        if (modality != null && !modality.isBlank()) {
-            return sessionRepository.findByModalityIgnoreCase(modality);
-        }
-
-        return List.of();
     }
 
     public List<TutoringSession> getProfessorActiveSessions(User professor) {
         authorizationService.checkIsProfessor(professor);
-        return sessionRepository.findByProfessorAndStartTimeAfterAndStatusNot(professor, LocalDateTime.now(),
-                STATUS_CANCELLED);
-
+        return sessionRepository.findByProfessorAndStartTimeAfterAndStatusNot(
+                professor, LocalDateTime.now(), STATUS_CANCELLED);
     }
 
     public boolean cancelSessionById(User professor, Long sessionId) {
-
         authorizationService.checkIsProfessor(professor);
 
-        @SuppressWarnings("null")
         Optional<TutoringSession> sessionOpt = sessionRepository.findById(sessionId);
+
         if (sessionOpt.isEmpty()) {
             return false;
         }
@@ -92,76 +66,81 @@ public class TutoringSessionService {
         TutoringSession session = sessionOpt.get();
 
         if (!session.getProfessor().getDni().equals(professor.getDni())) {
+            consoleIO.writeError("Access Denied: You can only cancel sessions you created.");
             return false;
         }
 
-        if (STATUS_CANCELLED.equals(session.getStatus())) {
+        if (STATUS_CANCELLED.equalsIgnoreCase(session.getStatus())) {
+            consoleIO.write("Info: The session is already cancelled.");
             return true;
         }
 
-        try {
+        session.setStatus(STATUS_CANCELLED);
+        sessionRepository.save(session);
 
-            session.setStatus(STATUS_CANCELLED);
-            sessionRepository.save(session);
-            List<Enrollment> enrollments = enrollmentRepository.findBySession_Id(sessionId);
-            LocalDateTime now = LocalDateTime.now();
-
-            for (Enrollment enrollment : enrollments) {
-                if (!STATUS_CANCELLED.equals(enrollment.getStatus())) {
-                    enrollment.setStatus(STATUS_CANCELLED);
-                    enrollment.setCancellationDate(now);
-                    enrollment.setCancelledBy(professor.getDni());
-                    enrollmentRepository.save(enrollment);
-                }
+        List<Enrollment> enrollments = enrollmentRepository.findBySession_Id(sessionId);
+        for (Enrollment e : enrollments) {
+            if (!STATUS_CANCELLED.equalsIgnoreCase(e.getStatus())) {
+                e.setStatus(STATUS_CANCELLED);
+                e.setCancellationDate(LocalDateTime.now());
+                e.setCancelledBy("PROFESSOR_SESSION_CANCELLED");
+                enrollmentRepository.save(e);
             }
-            return true;
-
-        } catch (DataAccessException e) {
-            logger.error("Database error during enrollment cancellation for session id={}", sessionId, e);
-            return false;
         }
+
+        return true;
+    }
+
+    public List<TutoringSession> searchSessions(String subject, LocalDateTime date, String modality) {
+
+        if (subject != null) {
+            return sessionRepository.findBySubjectIgnoreCase(subject);
+
+        } else if (date != null) {
+            if (date.getHour() == 0 && date.getMinute() == 0 && date.getSecond() == 0 && date.getNano() == 0) {
+                LocalDateTime startOfDay = date;
+                LocalDateTime endOfDay = date.withHour(23).withMinute(59).withSecond(59);
+                return sessionRepository.findByStartTimeBetween(startOfDay, endOfDay);
+            } else {
+                return sessionRepository.findByStartTimeAfter(date);
+            }
+
+        } else if (modality != null) {
+            return sessionRepository.findByModalityIgnoreCase(modality);
+        }
+        return sessionRepository.findAll();
+    }
+
+    public Optional<TutoringSession> findSessionById(Long id) {
+        return sessionRepository.findById(id);
     }
 
     public boolean enrollStudent(User student, Long sessionId) {
-
-        if (student == null) {
-            consoleIO.writeError("Error: Student not found.");
-            return false;
-        }
-
         Optional<TutoringSession> sessionOpt = sessionRepository.findById(sessionId);
+
         if (sessionOpt.isEmpty()) {
-            consoleIO.writeError("Error: Tutoring session not found.");
+            consoleIO.writeError("Error: Tutoring Session ID " + sessionId + " not found.");
             return false;
         }
 
         TutoringSession session = sessionOpt.get();
+        LocalDateTime now = LocalDateTime.now();
 
-        // No permitir inscripción en sesiones canceladas
-        if (STATUS_CANCELLED.equalsIgnoreCase(session.getStatus())) {
-            consoleIO.writeError("Error: This tutoring session is CANCELLED.");
+        if (session.getStartTime().isBefore(now)) {
+            consoleIO.writeError("Error: Cannot enroll in a session that has already started or passed.");
             return false;
         }
 
-        // No permitir inscripción en sesiones pasadas
-        if (session.getStartTime().isBefore(LocalDateTime.now())) {
-            consoleIO.writeError("Error: You cannot enroll in a past session.");
-            return false;
-        }
+        Optional<Enrollment> existingEnrollment = enrollmentRepository.findByStudentAndSession_Id(student, sessionId);
 
-        // Ver si ya existe inscripción
-        Optional<Enrollment> existingOpt = enrollmentRepository.findByStudentAndSession_Id(student, sessionId);
+        if (existingEnrollment.isPresent()) {
+            Enrollment existing = existingEnrollment.get();
 
-        if (existingOpt.isPresent()) {
-            Enrollment existing = existingOpt.get();
-
-            // Si ya estaba activo, no duplicar
-            if (!STATUS_CANCELLED.equalsIgnoreCase(existing.getStatus())) {
+            if (STATUS_ACTIVE.equalsIgnoreCase(existing.getStatus())) {
                 consoleIO.writeError("Error: You are already enrolled in this session.");
                 return false;
             }
 
-            // Si estaba CANCELLED, reactivar
             existing.setStatus(STATUS_ACTIVE);
             existing.setEnrollmentDate(LocalDateTime.now());
             existing.setCancellationDate(null);
@@ -172,7 +151,6 @@ public class TutoringSessionService {
             return true;
         }
 
-        // Validar cupo (cuenta enrollments NO cancelados)
         List<Enrollment> all = enrollmentRepository.findBySession_Id(sessionId);
         long activeCount = all.stream()
                 .filter(e -> e.getStatus() == null || !STATUS_CANCELLED.equalsIgnoreCase(e.getStatus()))
@@ -183,7 +161,6 @@ public class TutoringSessionService {
             return false;
         }
 
-        // Crear nuevo enrollment
         Enrollment enrollment = new Enrollment();
         enrollment.setStudent(student);
         enrollment.setSession(session);
@@ -195,7 +172,4 @@ public class TutoringSessionService {
         consoleIO.write("Enrollment successful!");
         return true;
     }
-
-
-
 }

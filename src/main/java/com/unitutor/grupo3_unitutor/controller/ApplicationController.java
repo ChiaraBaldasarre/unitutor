@@ -82,14 +82,6 @@ public class ApplicationController {
             }
             break;
 
-          case "3":
-            if ("STUDENT".equals(roleName)) {
-              enrollmentCancellationController.cancelEnrollment(user);
-            } else if ("PROFESSOR".equals(roleName)) {
-              professorSessionController.uploadGrades(user);
-            }
-            break;
-
           case "0":
             consoleIO.write("\nSigning out...");
             exit = true;
