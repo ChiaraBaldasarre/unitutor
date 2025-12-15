@@ -166,7 +166,7 @@ public class ConsoleController {
                     break;
 
                 case "2":
-                    handleProfessorSessionManagement(professor);
+                    manageProfessorSessionManagement(professor);
                     break;
 
                 case "0":
@@ -189,7 +189,7 @@ public class ConsoleController {
             if ("STUDENT".equals(roleName)) {
                 handleStudentMenu(user);
             } else if ("PROFESSOR".equals(roleName)) {
-                handleProfessorMenu(user); // Llama al método dedicado del profesor
+                handleProfessorMenu(user);
             } else {
                 consoleIO.writeError("Unrecognized role. Logging out...");
             }
@@ -217,14 +217,13 @@ public class ConsoleController {
         String input = consoleIO.readLine("\nEnter Tutoring Session ID to ENROLL (0 to go back): ").trim();
 
         if ("0".equals(input)) {
-            return false; // vuelve al filtro
+            return false;
         }
 
         try {
             Long sessionId = Long.parseLong(input);
             boolean enrolled = tutoringSessionService.enrollStudent(student, sessionId);
 
-            // ✅ UNI-020: si se inscribe bien, salimos al menú principal del estudiante
             return enrolled;
 
         } catch (NumberFormatException e) {
@@ -336,7 +335,7 @@ public class ConsoleController {
         }
     }
 
-    private void handleProfessorSessionManagement(User professor) {
+    public void manageProfessorSessionManagement(User professor) {
 
         List<TutoringSession> sessions = tutoringSessionService.getProfessorActiveSessions(professor);
         professorMenuView.displayProfessorSessions(sessions, consoleIO);

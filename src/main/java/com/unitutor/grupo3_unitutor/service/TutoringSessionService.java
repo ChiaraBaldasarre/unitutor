@@ -4,7 +4,6 @@ import com.unitutor.grupo3_unitutor.model.TutoringSession;
 import com.unitutor.grupo3_unitutor.repository.EnrollmentRepository;
 import com.unitutor.grupo3_unitutor.repository.TutoringSessionRepository;
 import com.unitutor.grupo3_unitutor.view.ConsoleIO;
-import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 import com.unitutor.grupo3_unitutor.model.User;
 import com.unitutor.grupo3_unitutor.model.Enrollment;
@@ -98,8 +97,13 @@ public class TutoringSessionService {
             return sessionRepository.findBySubjectIgnoreCase(subject);
 
         } else if (date != null) {
-            LocalDateTime endOfDay = date.withHour(23).withMinute(59).withSecond(59);
-            return sessionRepository.findByStartTimeBetween(date.withHour(0).withMinute(0), endOfDay);
+            if (date.getHour() == 0 && date.getMinute() == 0 && date.getSecond() == 0 && date.getNano() == 0) {
+                LocalDateTime startOfDay = date;
+                LocalDateTime endOfDay = date.withHour(23).withMinute(59).withSecond(59);
+                return sessionRepository.findByStartTimeBetween(startOfDay, endOfDay);
+            } else {
+                return sessionRepository.findByStartTimeAfter(date);
+            }
 
         } else if (modality != null) {
             return sessionRepository.findByModalityIgnoreCase(modality);
@@ -156,7 +160,7 @@ public class TutoringSessionService {
             consoleIO.writeError("Error: This tutoring session is already full.");
             return false;
         }
-        
+
         Enrollment enrollment = new Enrollment();
         enrollment.setStudent(student);
         enrollment.setSession(session);

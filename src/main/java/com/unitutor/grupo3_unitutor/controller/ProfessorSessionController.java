@@ -13,15 +13,19 @@ public class ProfessorSessionController {
   private static final Logger logger = LoggerFactory.getLogger(ProfessorSessionController.class);
   private final ProfessorFormService professorFormService;
   private final ConsoleIO consoleIO;
+  private final ConsoleController consoleController;
 
-  public ProfessorSessionController(ProfessorFormService professorFormService, ConsoleIO consoleIO) {
+  public ProfessorSessionController(ProfessorFormService professorFormService, ConsoleIO consoleIO, ConsoleController consoleController) {
     this.professorFormService = professorFormService;
     this.consoleIO = consoleIO;
+    this.consoleController = consoleController;
   }
 
   public void createSession(User professor) {
+
     try {
       professorFormService.createTutoringSession(professor);
+
     } catch (Exception e) {
       logger.error("Error creating tutoring session", e);
       consoleIO.writeError("An unexpected error occurred. Contact support.");
@@ -29,10 +33,6 @@ public class ProfessorSessionController {
   }
 
   public void manageActiveSessions(User professor) {
-    consoleIO.write("[PROFESSOR] Manage Active Tutoring Sessions (pending implementation).");
-  }
-
-  public void uploadGrades(User professor) {
-    consoleIO.write("[PROFESSOR] Upload Grades (pending implementation).");
+    consoleController.manageProfessorSessionManagement(professor);
   }
 }
