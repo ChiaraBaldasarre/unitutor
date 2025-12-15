@@ -9,6 +9,8 @@ import java.util.List;
 @Component
 public class ProfessorMenuView implements RoleMenuView {
 
+    private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+
     @Override
     public void showMenu() {
         System.out.println("\nMAIN DASHBOARD [PROFESSOR]");
@@ -18,7 +20,7 @@ public class ProfessorMenuView implements RoleMenuView {
     }
 
     public void displayProfessorSessions(List<TutoringSession> sessions, ConsoleIO consoleIO) {
-        consoleIO.write("\n=== YOUR ACTIVE TUTORING SESSIONS ===");
+        consoleIO.write("\n=== YOUR ACTIVE TUTORING SESSIONS (Status: ACTIVE) ===");
 
         if (sessions.isEmpty()) {
             consoleIO.write("You do not have any active tutoring sessions.");
@@ -34,7 +36,7 @@ public class ProfessorMenuView implements RoleMenuView {
                 String row = String.format(rowFormat,
                         session.getId(),
                         session.getSubject(),
-                        session.getStartTime().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")),
+                        session.getStartTime().format(DATE_TIME_FORMATTER),
                         session.getMaxCapacity(),
                         session.getModality());
                 consoleIO.write(row);
