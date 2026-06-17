@@ -32,6 +32,12 @@ build/
 ### VS Code ###
 .vscode/
 
-# Excluir archivos de configuración sensibles
+# Configuración sensible (Asegúrate de tener un archivo .example)
 **/src/main/resources/*.properties
 **/src/main/resources/*.yml
+
+# Sistema y otros
+Thumbs.db
+Desktop.ini
+*.log
+*.tmp
