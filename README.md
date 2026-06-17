@@ -136,5 +136,3 @@ Database: MySQL
 ## Project repository
 
 https://gitlab.com/jala-university1/cohort-6/ES.CSSD-113.GA.T2.25.M2/SD/grupo3-unitutorcapstone
-
--
